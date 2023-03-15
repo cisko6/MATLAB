@@ -41,7 +41,7 @@ for i=1:2%dlzkaPcapu-okno
         end
 
 
-        theta = theta + 0.001;
+        theta = theta + 0.0001;
     end
 
 
