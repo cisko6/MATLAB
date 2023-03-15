@@ -27,12 +27,11 @@ for i=1:2%dlzkaPcapu-okno
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     Y = log(Plost)/(-d);
     
-    lambda = 0;
+    theta = 0;
     while true
-        %lambdaTheta = 0;
 
         for k=1:10
-            pom(k) = (exp(lambda*k))*pdf(k);
+            pom(k) = (exp(theta*k))*pdf(k);
         end
 
         lambdaTheta = log(sum(pom));
@@ -42,14 +41,14 @@ for i=1:2%dlzkaPcapu-okno
         end
 
 
-        lambda = lambda + 0.001;
+        theta = theta + 0.001;
     end
 
 
 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    c = lambdaTheta/lambda;
+    c = lambdaTheta/theta;
     
     velkostBuffra = d*c;
 
@@ -65,3 +64,4 @@ tcw1 = linspace(okno,dlzkaPcapu,dlzkaPcapu-okno);
 % zvyraznit vlozenou ciarou, kde zacal utok
 
 %plot(t,Nt,tcw1)
+
