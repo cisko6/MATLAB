@@ -1,7 +1,9 @@
 % Parameters
-c = 1; % kapacita
-a = [2 5 1 3 4]; % prichadzajuce pakety
-T = length(a); % čas
+c = 2; % kapacita
+T = 100; % čas
+priemerPrichodov = 1;
+
+a = exprnd(priemerPrichodov, [1, T]); % prichadzajuce pakety
 
 % Inicializacia buffra
 q = zeros(1, T+1);
@@ -12,8 +14,7 @@ for t = 1:T
     q(t+1) = max(q(t) + a(t) - c, 0);
 end
 
-figure;
-stem(0:T, q);
+plot(q);
 xlabel('Time step');
 ylabel('Buffer state');
 title('Lindley buffer simulation');
