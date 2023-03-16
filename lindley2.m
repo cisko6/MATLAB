@@ -1,11 +1,13 @@
-% Define parameters
-lambda = 0.5; % shape parameter
-theta = 1; % scale parameter
-T = 100; % simulation time
+% Parametre
+lambda = 3; % kolko ich pride do buffru za jeden cas
+theta = 0.5; % priemerny service time na spracovanie ulohy v buffri
+T = 100; % čas
 
 % Generate a random sample of service times using a custom function
-lindley = @(n) theta./(1 - exprnd(1/lambda, [1, n]));
+lindley = @(n) theta./(1 - exprnd(1/lambda, [1, n]));%exprnd(mean,počet itemov)
 service_times = lindley(T);
+
+meanservicetime = mean(service_times);
 
 % Simulate the arrival process using a Poisson process
 interarrival_times = exprnd(1/lambda, [1, T]);
