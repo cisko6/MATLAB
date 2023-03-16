@@ -1,4 +1,4 @@
-% Parameters
+% Parametre
 c = 2; % kapacita
 velkost_buffra = 2; 
 T = 100; % čas
