@@ -3,9 +3,9 @@ c = 1; % kapacita
 a = [2 5 1 3 4]; % prichadzajuce pakety
 T = length(a); % čas
 
-% Initialize the buffer
-q = zeros(1, T+1); % vynulovanie
-q(1) = 0; % inicializacia
+% Inicializacia buffra
+q = zeros(1, T+1);
+q(1) = 0;
 
 % Simulacia buffra
 for t = 1:T
