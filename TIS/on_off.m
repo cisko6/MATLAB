@@ -35,9 +35,9 @@ clear('sampled_data');
 pom_sum = sum(data(1:sample_size));
 sampled_data(1) = pom_sum;
 
-for i=1:(pocet_generovanych/sample_size)-1
+for i=1:(pocet_generovanych/sample_size)-1 % -1 lebo prvykrat mam vysie
     pom_sum = sum(data((i*sample_size)+1:(i*sample_size)+sample_size));
-    sampled_data(i) = pom_sum;
+    sampled_data(i+1) = pom_sum;
 end
 
 plot(sampled_data)
