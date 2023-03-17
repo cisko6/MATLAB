@@ -10,6 +10,7 @@ zero_counter = 0;
 
 b = 1;
 
+%generovanie sekvencie bitov
 for i=1:pocet_generovanych
     if stav == 1
         data(i) = 1;
