@@ -13,7 +13,7 @@ counter_one = 0;
 counter_zero = 0;
 
 % generovanie sekvencie bitov
-for i=1:pocet_generovanych%pocet_generovanych*sample_size
+for i=1:pocet_generovanych
     if stav == 1
         data(i) = 1;
         counter_one = counter_one + 1;

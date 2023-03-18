@@ -1,15 +1,11 @@
 clear
+clc
 
-addpath 'C:\Users\patri\OneDrive\Documents\GitHub\MATLAB'
-load('Attack_3_d010.mat')
-%load('Attack_3_d010.mat')
+load('C:\Users\patri\OneDrive\Documents\GitHub\MATLAB\Utoky\Attack_3_d010.mat')
 
 Nt=a;
-
 dlzkaPcapu = length(Nt);
-
 t = linspace(1,dlzkaPcapu,dlzkaPcapu);
-
 
 % okno - dlzka vypoctoveho okno
 okno = 3000;
