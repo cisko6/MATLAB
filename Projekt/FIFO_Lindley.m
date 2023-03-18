@@ -1,6 +1,8 @@
 clear
 
+addpath 'C:\Users\patri\OneDrive\Documents\GitHub\MATLAB'
 load('Attack_3_d010.mat')
+%load('Attack_3_d010.mat')
 
 Nt=a;
 

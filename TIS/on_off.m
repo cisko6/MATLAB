@@ -1,6 +1,5 @@
-clear('data');
-clear('sampled_data');
-clear('q');
+clear
+clc
 
 % Parametre
 alfa = 0.95;
