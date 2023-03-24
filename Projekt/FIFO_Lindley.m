@@ -7,8 +7,8 @@ Nt=a;
 dlzkaPcapu = length(Nt);
 t = linspace(1,dlzkaPcapu,dlzkaPcapu);
 
-compute_window = 100;
-shift = 5;
+compute_window = 1000;
+shift = 100;
 d = 100;
 Plost = 1*10^-100;
 
@@ -17,29 +17,19 @@ Y = log(Plost)/(-d);
 
 % Initialize the buffer
 q(1) = 0;
-pom_zahodene = 0;
 
+j = 1;
+last_in_queue = 0;
+q = zeros(1,5000);
 for i=1:dlzkaPcapu-compute_window
-    
-    data  = Nt(i:compute_window-1+i);
-    
     if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem 100 200 300..
         if i ~= 1 % ak i je 1, tak sa vypocita velkost buffra
-            % Simulacia buffra
-            for t = 1:compute_window
-                q(t+1) = (min(max(q(t) + data(t) - c, 0), velkost_buffra));
-
-                % zahodene pakety
-                je_viac = max(q(t) + data(t) - c, 0);
-                if je_viac > velkost_buffra
-                    pom_zahodene(t) = (max(q(t) + data(t) - c, 0) - velkost_buffra);
-                end
-            end
-            zahodene(i+compute_window) = sum(pom_zahodene);
             continue
         end
     end
-    
+    % tu prejde iba v čase shiftu
+    data  = Nt(i:compute_window-1+i);
+
     %vypocet pravdepodobnosti Pk
     hist_counts = histcounts(data);
     pdf = hist_counts/sum(hist_counts);
@@ -52,10 +42,11 @@ for i=1:dlzkaPcapu-compute_window
     
     % vypocet thety
     theta = 0;
+    
     while true
 
         for k=1:dlzkaPdf
-            pom(k) = (exp(theta*k))*pdf(k);
+            pom(k) = (exp(theta*(k-1)))*pdf(k);
         end
 
         lambda_theta = log(sum(pom));
@@ -72,31 +63,39 @@ for i=1:dlzkaPcapu-compute_window
     velkost_buffra = d*c;
 
     % Simulacia buffra
-    for t = 1:compute_window
-        q(t+1) = (min(max(q(t) + data(t) - c, 0), velkost_buffra));
+    if i == 1
+        pointer = compute_window;%0; zakomentovane preto aby boli grafy pod sebou
+    else
+        pointer = pointer + shift;
+    end
+    
+    j = 0;
+    for t = (compute_window-shift):compute_window
+        
+        q(pointer+j+2) = (min(max(q(pointer+j+1) + data(t) - c, 0), velkost_buffra));
 
         % zahodene pakety
-        je_viac = max(q(t) + data(t) - c, 0);
+        je_viac = max(q(pointer+j+1) + data(t) - c, 0);
         if je_viac > velkost_buffra
-            pom_zahodene(t) = (max(q(t) + data(t) - c, 0) - velkost_buffra);
+            zahodene(pointer+j+1) = (max(q(pointer+j+1) + data(t) - c, 0) - velkost_buffra);
         end
+        j = j + 1;
     end
-    zahodene(i+compute_window) = sum(pom_zahodene);
 end
 
 %Vypisy
-subcislo = 2;
+subcislo = 3;
 
 subplot(subcislo,1,1);
 plot(Nt);
 title("data");
-%{
+
 subplot(subcislo,1,2);
 plot(q);
 title("queue");
 xlim([0 dlzkaPcapu]);
-%}
-subplot(subcislo,1,2);
+
+subplot(subcislo,1,3);
 plot(zahodene);
 title("zahodene pakety");
 xlim([0 dlzkaPcapu]);

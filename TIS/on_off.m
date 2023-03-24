@@ -4,10 +4,10 @@ clc
 % Parametre
 alfa = 0.95;
 beta = 0.95;
-sample_size = 6;
-pocet_generovanych = 6000;
+sample_size = 10;
+pocet_generovanych = 20000;
 stav = 1;
-avg_lambda = 1;
+avg_lambda = 1.2;
 
 counter_one = 0;
 counter_zero = 0;
