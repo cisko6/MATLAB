@@ -10,6 +10,7 @@ compute_window = 1000;
 shift = 100;
 d = 100;
 Plost = 0.1;%1*10^-100;
+lambda = 50;
 
 Y = log(Plost)/(-d);
 
@@ -17,14 +18,12 @@ Y = log(Plost)/(-d);
 q = zeros(1,dlzkaPcapu-compute_window);
 zahodene = zeros(1,dlzkaPcapu-compute_window);
 
-%klzavyPriemer(i+compute_window) = mean(data_cw);
-
 for i=1:dlzkaPcapu-compute_window
 
     if i == 1 % ak i je 1, tak sa vypocita velkost buffra
         data_cw  = Nt(i:compute_window);
-        vysl = vypocitaj_kapacitu(data_cw,Y);
-        c = vysl(1); theta = vysl(2); lambda_theta = vysl(3);
+        vysl = vypocitaj_kapacitu(lambda,Plost,d);
+        c = vysl(1);theta = vysl(2);
         velkost_buffra = d*c;
         continue  
     end
@@ -49,8 +48,8 @@ for i=1:dlzkaPcapu-compute_window
     data_cw  = Nt(i:i+compute_window);
     
     %nastavenie kapacity a velkosti buffra
-    vysl = vypocitaj_kapacitu(data_cw,Y);
-    c = vysl(1); theta = vysl(2); lambda_theta = vysl(3);
+    vysl = vypocitaj_kapacitu(lambda,Plost,d);
+    c = vysl(1);theta = vysl(2);
     velkost_buffra = d*c;
     
     %hodenie jedneho prvku do buffru
@@ -70,14 +69,13 @@ subcislo = 3;
 subplot(subcislo,1,1);
 plot(Nt);
 title("data");
-%hold on 
-%plot(klzavyPriemer);
 xlim([0 dlzkaPcapu]);
-hold off
+
 subplot(subcislo,1,2);
 plot(q);
-title("queue");
+title("queue, c = "+c+", velkost buffra = "+velkost_buffra);
 xlim([0 dlzkaPcapu]);
+
 subplot(subcislo,1,3);
 plot(zahodene);
 title("zahodene pakety");
@@ -86,31 +84,13 @@ zz = rand(1);
 
 
 
-function vysl = vypocitaj_kapacitu(data_cw,Y)
-    %vypocet pravdepodobnosti Pk
-   
-    hist_counts = histcounts(data_cw);
-    pdf = hist_counts/sum(hist_counts);
-    dlzkaPdf = length(pdf);
-    
-    
-
+function vysl = vypocitaj_kapacitu(lambda,Plost,d)
     % vypocet thety
-    theta = 0.001;
-    
-    while true
-        for k=1:dlzkaPdf
-            pom(k) = (exp(theta*(k-1)))*pdf(k);
-        end
-        lambda_theta = log(sum(pom));
-        if lambda_theta >= Y
-            break
-        end
-        theta = theta + 0.001;
-    end
+    theta = log(log(Plost)/(-d * lambda));
+
     % nastavenie kapacity
-    c = lambda_theta/theta;
-    vysl = [c,theta,lambda_theta];
+    c = (lambda*((exp(theta))-1))/theta;
+    vysl = [c,theta];
 end
 
 
