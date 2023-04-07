@@ -1,8 +1,8 @@
 clear
 clc
-load("C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_3_d010.mat");%ntbk
+%load("C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_3_d010.mat");%ntbk
 %load('Attack_3_d010.mat');
-%load('C:\Users\patri\OneDrive\Documents\GitHub\MATLAB\Utoky\Attack_3_d010.mat')
+load('C:\Users\patri\OneDrive\Documents\GitHub\MATLAB\Utoky\Attack_3_d010.mat')
 Nt=a;
 dlzkaPcapu = length(Nt);
 
@@ -89,33 +89,31 @@ zz = rand(1);
 function vysl = vypocitaj_kapacitu(data_cw,Y)
     %vypocet pravdepodobnosti Pk
    
-    %hist_counts = histcounts(data_cw);
-    %pdf = hist_counts/sum(hist_counts);
-    %dlzkaPdf = length(pdf);
+    hist_counts = histcounts(data_cw);
+    pdf = hist_counts/sum(hist_counts);
+    dlzkaPdf = length(pdf);
 
-    max_number_y = max(data_cw);
-    for k=0:max_number_y
-        n = 0;
-        n = numel(find(data_cw==k));
-        pdf(k+1) = n;
-    end
+    %max_number_y = max(data_cw);
+    %for k=0:max_number_y
+    %    n = 0;
+    %    n = numel(find(data_cw==k));
+    %    pdf(k+1) = n;
+    %end
     
-    
-
 
     % vypocet thety
-    %theta = 0.001;
+    theta = 0.001;
     
-    %while true
-    %    for k=1:dlzkaPdf
-    %        pom(k) = (exp(theta*(k-1)))*pdf(k);
-    %    end
-    %    lambda_theta = log(sum(pom));
-    %    if lambda_theta >= Y
-    %        break
-    %    end
-    %    theta = theta + 0.001;
-    %end
+    while true
+        for k=1:dlzkaPdf
+            pom(k) = (exp(theta*(k-1)))*pdf(k);
+        end
+        lambda_theta = log(sum(pom));
+        if lambda_theta >= Y
+            break
+        end
+        theta = theta + 0.001;
+    end
     % nastavenie kapacity
     c = lambda_theta/theta;
     vysl = [c,theta,lambda_theta];
