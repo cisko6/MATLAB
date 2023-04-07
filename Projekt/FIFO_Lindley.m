@@ -1,9 +1,9 @@
 clear
 clc
-load("C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_2_d010.mat");%ntbk
+%load("C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_2_d010.mat");%ntbk
 
 %load('Attack_3_d010.mat');
-%load('C:\Users\patri\OneDrive\Documents\GitHub\MATLAB\Utoky\Attack_3_d010.mat')
+load('C:\Users\patri\OneDrive\Documents\GitHub\MATLAB\Utoky\Attack_3_d010.mat')
 
 Nt=a;
 dlzkaPcapu = length(Nt);
