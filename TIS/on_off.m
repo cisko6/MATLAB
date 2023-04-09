@@ -5,7 +5,7 @@ clc
 alfa = 0.95;
 beta = 0.95;
 sample_size = 10;
-pocet_generovanych = 20000;
+pocet_generovanych = 2000;
 stav = 1;
 avg_lambda = 1.2;
 
