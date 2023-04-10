@@ -18,25 +18,20 @@ Y = (log(Plost))/(-d);
 q = zeros(1,dlzkaPcapu);
 zahodene = zeros(1,dlzkaPcapu);
 
-for i=1:dlzkaPcapu-compute_window
+%i==1
+data_cw = Nt(1:compute_window);
+[c,velkost_buffra] = vypocitaj_kapacitu(data_cw,Y,d);
 
-    if i == 1 % ak i je 1, tak sa vypocita velkost buffra
-        data_cw  = Nt(i:compute_window);
-        [c,velkost_buffra] = vypocitaj_kapacitu(data_cw,Y,d);
-        continue  
-    end
+for i=2:dlzkaPcapu-compute_window
 
     if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem nasobkov shiftu..
         [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,compute_window,i,c,velkost_buffra);
         continue
     end
-
+    %nastavenie c,velkosti buffra a hodenie do buffru
     data_cw  = Nt(i:i+compute_window);
     
-    %nastavenie kapacity a velkosti buffra
     [c,velkost_buffra] = vypocitaj_kapacitu(data_cw,Y,d);
-    
-    %hodenie jedneho prvku do buffru
     [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,compute_window,i,c,velkost_buffra);
 end
 
