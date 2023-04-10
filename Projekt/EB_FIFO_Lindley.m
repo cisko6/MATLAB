@@ -13,49 +13,31 @@ Plost = 0.1;
 
 Y = (log(Plost))/(-d);
 
+
 % Inicializácia buffra
-q = zeros(1,dlzkaPcapu-compute_window);
-zahodene = zeros(1,dlzkaPcapu-compute_window);
+q = zeros(1,dlzkaPcapu);
+zahodene = zeros(1,dlzkaPcapu);
 
 for i=1:dlzkaPcapu-compute_window
 
     if i == 1 % ak i je 1, tak sa vypocita velkost buffra
         data_cw  = Nt(i:compute_window);
-        vysl = vypocitaj_kapacitu(data_cw,Y,d);
-        c = vysl(1);
-        velkost_buffra = vysl(2);
+        [c,velkost_buffra] = vypocitaj_kapacitu(data_cw,Y,d);
         continue  
     end
 
     if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem nasobkov shiftu..
-
-        %vkladanie po 1 do buffra
-        q(i+compute_window) = min(max(q(i+compute_window-1) + Nt(i+compute_window) - c, 0), velkost_buffra);
-
-        % zahodene pakety
-        je_viac = max(q(i+compute_window-1) + Nt(i+compute_window) - c, 0);
-        if je_viac > velkost_buffra
-            zahodene(i+compute_window) = je_viac - velkost_buffra;
-        end
+        [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,compute_window,i,c,velkost_buffra);
         continue
     end
-
-    %prepocita sa kapacita a hodi sa jeden prvok do buffra
 
     data_cw  = Nt(i:i+compute_window);
     
     %nastavenie kapacity a velkosti buffra
-    vysl = vypocitaj_kapacitu(data_cw,Y,d);
-    c = vysl(1);
-    velkost_buffra = vysl(2);
+    [c,velkost_buffra] = vypocitaj_kapacitu(data_cw,Y,d);
     
     %hodenie jedneho prvku do buffru
-    q(i+compute_window) = min(max(q(i+compute_window-1) + Nt(i+compute_window) - c, 0), velkost_buffra);
-    % zahodene pakety
-    je_viac = max(q(i+compute_window-1) + Nt(i+compute_window) - c, 0);
-    if je_viac > velkost_buffra
-        zahodene(i+compute_window) = je_viac - velkost_buffra;
-    end
+    [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,compute_window,i,c,velkost_buffra);
 end
 
 mean_zahodene = mean(zahodene);
@@ -82,7 +64,7 @@ zz = rand(1);
 
 
 
-function vysl = vypocitaj_kapacitu(data_cw,Y,d)
+function [c,velkost_buffra] = vypocitaj_kapacitu(data_cw,Y,d)
     %vypocet pravdepodobnosti Pk
    
     %hist_counts = histcounts(data_cw);
@@ -113,10 +95,9 @@ function vysl = vypocitaj_kapacitu(data_cw,Y,d)
     % nastavenie kapacity a n
     c = lambda_theta/theta;
     velkost_buffra = d*c;
-    vysl = [c,velkost_buffra];
 end
 
-function vloz_do_buffra(Nt,q,zahodene,compute_window,i)
+function [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,compute_window,i,c,velkost_buffra)
 
         %vkladanie po 1 do buffra
         q(i+compute_window) = min(max(q(i+compute_window-1) + Nt(i+compute_window) - c, 0), velkost_buffra);
