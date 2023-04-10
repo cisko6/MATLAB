@@ -22,17 +22,22 @@ zahodene = zeros(1,dlzkaPcapu);
 data_cw = Nt(1:compute_window);
 [c,velkost_buffra] = vypocitaj_kapacitu(data_cw,Y,d);
 
-for i=2:dlzkaPcapu-compute_window
+klzavy_priemer = zeros(1,dlzkaPcapu);
+for i=compute_window+1:dlzkaPcapu-1
 
     if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem nasobkov shiftu..
-        [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,compute_window,i,c,velkost_buffra);
+        [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,i,c,velkost_buffra);
+        klzavy_priemer(i) = mean(Nt(i-compute_window:i));
         continue
     end
     %nastavenie c,velkosti buffra a hodenie do buffru
-    data_cw  = Nt(i:i+compute_window);
-    
+    data_cw  = Nt(i-compute_window:i);
+
+    klzavy_priemer(i) = mean(data_cw);
+
+
     [c,velkost_buffra] = vypocitaj_kapacitu(data_cw,Y,d);
-    [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,compute_window,i,c,velkost_buffra);
+    [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,i,c,velkost_buffra);
 end
 
 mean_zahodene = mean(zahodene);
@@ -43,8 +48,8 @@ subcislo = 3;
 subplot(subcislo,1,1);
 plot(Nt);
 title("data");
-%hold on 
-%plot(klzavyPriemer);
+hold on 
+plot(klzavy_priemer,'red');
 xlim([0 dlzkaPcapu]);
 hold off
 subplot(subcislo,1,2);
@@ -92,18 +97,18 @@ function [c,velkost_buffra] = vypocitaj_kapacitu(data_cw,Y,d)
     velkost_buffra = d*c;
 end
 
-function [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,compute_window,i,c,velkost_buffra)
+
+function [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,i,c,velkost_buffra)
 
         %vkladanie po 1 do buffra
-        q(i+compute_window) = min(max(q(i+compute_window-1) + Nt(i+compute_window) - c, 0), velkost_buffra);
+        q(i+1) = min(max(q(i) + Nt(i+1) - c, 0), velkost_buffra);
 
         % zahodene pakety
-        je_viac = max(q(i+compute_window-1) + Nt(i+compute_window) - c, 0);
+        je_viac = max(q(i) + Nt(i+1) - c, 0);
         if je_viac > velkost_buffra
-            zahodene(i+compute_window) = je_viac - velkost_buffra;
+            zahodene(i+1) = je_viac - velkost_buffra;
         end
 
 end
-
 
 
