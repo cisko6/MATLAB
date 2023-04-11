@@ -64,6 +64,9 @@ zz = rand(1);
 
 
 
+
+
+
 function [c,velkost_buffra] = vypocitaj_kapacitu(data_cw,Y,d)
     %vypocet pravdepodobnosti Pk
    

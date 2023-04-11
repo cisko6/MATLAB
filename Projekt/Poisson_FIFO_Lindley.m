@@ -9,56 +9,33 @@ dlzkaPcapu = length(Nt);
 compute_window = 1000;
 shift = 100;
 d = 100;
-Plost = 0.1;%1*10^-100;
+Plost = 0.1;
 lambda = 50;
 
-Y = log(Plost)/(-d);
 
 % Inicializácia buffra
-q = zeros(1,dlzkaPcapu-compute_window);
-zahodene = zeros(1,dlzkaPcapu-compute_window);
+q = zeros(1,dlzkaPcapu);
+zahodene = zeros(1,dlzkaPcapu);
 
-for i=1:dlzkaPcapu-compute_window
+%i==1
+data_cw = Nt(1:compute_window);
+[c,velkost_buffra] = vypocitaj_poisson_kapacitu(lambda,Plost,d);
 
-    if i == 1 % ak i je 1, tak sa vypocita velkost buffra
-        data_cw  = Nt(i:compute_window);
-        vysl = vypocitaj_kapacitu(lambda,Plost,d);
-        c = vysl(1);theta = vysl(2);
-        velkost_buffra = d*c;
-        continue  
-    end
+klzavy_priemer = zeros(1,dlzkaPcapu);
+for i=compute_window+1:dlzkaPcapu-1
 
-    if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem 100 200 300..
-
-        %vkladanie po 1 do buffra
-        q(i+compute_window) = min(max(q(i+compute_window-1) + Nt(i+compute_window) - c, 0), velkost_buffra);
-
-        % zahodene pakety
-        je_viac = max(q(i+compute_window-1) + Nt(i+compute_window) - c, 0);
-        if je_viac > velkost_buffra
-            zahodene(i+compute_window) = je_viac - velkost_buffra;
-        end
+    if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem nasobkov shiftu..
+        [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,i,c,velkost_buffra);
+        klzavy_priemer(i) = mean(Nt(i-compute_window:i));
         continue
     end
 
-    %PREJDU SEM LEN 100 200 300
-    %PREPOCITA SA KAPACITA
-    %hodi sa jeden prvok do buffra
+    %nastavenie c,velkosti buffra a hodenie do buffru
+    data_cw  = Nt(i-compute_window:i);
+    klzavy_priemer(i) = mean(data_cw);
 
-    data_cw  = Nt(i:i+compute_window);
-    
-    %nastavenie kapacity a velkosti buffra
-    vysl = vypocitaj_kapacitu(lambda,Plost,d);
-    c = vysl(1);theta = vysl(2);
-    velkost_buffra = d*c;
-    
-    %hodenie jedneho prvku do buffru
-    q(i+compute_window) = min(max(q(i+compute_window-1) + Nt(i+compute_window) - c, 0), velkost_buffra);
-    % zahodene pakety
-    je_viac = max(q(i+compute_window-1) + Nt(i+compute_window) - c, 0);
-    if je_viac > velkost_buffra
-        zahodene(i+compute_window) = je_viac - velkost_buffra;
-    end
+    [c,velkost_buffra] = vypocitaj_poisson_kapacitu(lambda,Plost,d);
+    [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,i,c,velkost_buffra);
 end
 
 mean_zahodene = mean(zahodene);
@@ -68,6 +45,8 @@ mean_Nt = mean(Nt);
 subcislo = 3;
 subplot(subcislo,1,1);
 plot(Nt);
+hold on
+plot(klzavy_priemer);
 title("data");
 xlim([0 dlzkaPcapu]);
 
@@ -83,17 +62,27 @@ xlim([0 dlzkaPcapu]);
 zz = rand(1);
 
 
-
-function vysl = vypocitaj_kapacitu(lambda,Plost,d)
+function [c,velkost_buffra] = vypocitaj_poisson_kapacitu(lambda,Plost,d)
     % vypocet thety
     theta = log(log(Plost)/(-d * lambda));
 
     % nastavenie kapacity
     c = (lambda*((exp(theta))-1))/theta;
-    vysl = [c,theta];
+    velkost_buffra = d*c;
 end
 
 
+function [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,i,c,velkost_buffra)
+
+        %vkladanie po 1 do buffra
+        q(i+1) = min(max(q(i) + Nt(i+1) - c, 0), velkost_buffra);
+
+        % zahodene pakety
+        je_viac = max(q(i) + Nt(i+1) - c, 0);
+        if je_viac > velkost_buffra
+            zahodene(i+1) = je_viac - velkost_buffra;
+        end
+end
 
 
 
