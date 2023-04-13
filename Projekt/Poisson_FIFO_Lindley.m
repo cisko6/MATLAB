@@ -1,64 +1,87 @@
 clear
 clc
-%load("C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_3_d010.mat");%ntbk
-%load('Attack_3_d010.mat');
-load('C:\Users\patri\OneDrive\Documents\GitHub\MATLAB\Utoky\Attack_3_d010.mat')
-Nt=a;
-dlzkaPcapu = length(Nt);
 
-compute_window = 1000;
-shift = 100;
+pocet_generovanych = 10000;
+lambda = 50;
+compute_window = 40;
+shift = 20;
 d = 100;
 Plost = 0.1;
-lambda = 50;
 
+%generovanie poisson
+for i=1:pocet_generovanych
+    r = 1.*rand();
+    x(i) = (-log(1-r))/lambda;
+end
+T = cumsum(x);
+
+%vzorkovanie
+count = 1;
+data = zeros(1,pocet_generovanych);
+data(count) = data(count) + 1;
+
+for i=2:pocet_generovanych
+    if floor(T(i)) > floor(T(i-1))
+        count = count + 1;
+        data(count) = data(count) + 1;
+        continue
+    end
+    data(count) = data(count) + 1;
+end
+
+dlzka_dat = count;
 
 % Inicializácia buffra
-q = zeros(1,dlzkaPcapu);
-zahodene = zeros(1,dlzkaPcapu);
+q = zeros(1,dlzka_dat);
+zahodene = zeros(1,dlzka_dat);
 
 %i==1
-data_cw = Nt(1:compute_window);
+data_cw = data(1:compute_window);
 [c,velkost_buffra] = vypocitaj_poisson_kapacitu(lambda,Plost,d);
 
-klzavy_priemer = zeros(1,dlzkaPcapu);
-for i=compute_window+1:dlzkaPcapu-1
+klzavy_priemer = zeros(1,dlzka_dat);
+for i=compute_window+1:dlzka_dat-1
 
     if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem nasobkov shiftu..
-        [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,i,c,velkost_buffra);
-        klzavy_priemer(i) = mean(Nt(i-compute_window:i));
+        [q,zahodene] = vloz_do_buffra(data,q,zahodene,i,c,velkost_buffra);
+        klzavy_priemer(i) = mean(data(i-compute_window:i));
         continue
     end
 
     %nastavenie c,velkosti buffra a hodenie do buffru
-    data_cw  = Nt(i-compute_window:i);
+    data_cw  = data(i-compute_window:i);
     klzavy_priemer(i) = mean(data_cw);
 
     [c,velkost_buffra] = vypocitaj_poisson_kapacitu(lambda,Plost,d);
-    [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,i,c,velkost_buffra);
+    [q,zahodene] = vloz_do_buffra(data,q,zahodene,i,c,velkost_buffra);
 end
 
+
+
+
 mean_zahodene = mean(zahodene);
-mean_Nt = mean(Nt);
+mean_data = mean(data(1:count));
 
 %Vypisy
 subcislo = 3;
 subplot(subcislo,1,1);
-plot(Nt);
+plot(data);
 hold on
 plot(klzavy_priemer);
 title("data");
-xlim([0 dlzkaPcapu]);
+xlim([0 dlzka_dat]);
 
 subplot(subcislo,1,2);
 plot(q);
 title("queue, c = "+c+", velkost buffra = "+velkost_buffra);
-xlim([0 dlzkaPcapu]);
+xlim([0 dlzka_dat]);
 
 subplot(subcislo,1,3);
 plot(zahodene);
 title("zahodene pakety");
-xlim([0 dlzkaPcapu]);
+xlim([0 dlzka_dat]);
+
+fprintf("mean_data: %f\n",mean_data);
 zz = rand(1);
 
 

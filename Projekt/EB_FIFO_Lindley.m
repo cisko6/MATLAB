@@ -21,8 +21,8 @@ zahodene = zeros(1,dlzkaPcapu);
 %i==1
 data_cw = Nt(1:compute_window);
 [c,velkost_buffra] = vypocitaj_kapacitu(data_cw,Y,d);
-
 klzavy_priemer = zeros(1,dlzkaPcapu);
+
 for i=compute_window+1:dlzkaPcapu-1
 
     if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem nasobkov shiftu..

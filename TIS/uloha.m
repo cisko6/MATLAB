@@ -2,6 +2,8 @@ clear
 clc
 
 compute_window = 5;
+nasobok_koef = 20;
+nasobok_spic = 5;
 
 %M = readtable("C:\Users\patri\Downloads\miniShark\01 tsharkPONDELOK4_0_0.csv");ntbk
 %M = readtable("C:\Users\patri\Downloads\tok\01 tsharkPONDELOK4.csv");%full csv
@@ -45,9 +47,9 @@ for i=1:index-compute_window+1
 
     m(i+compute_window-1) = mean(data_pom); % klzavy priemer
     s(i+compute_window-1)  = sqrt(cov(data_pom)); % smerodajna odchylka
-    V(i+compute_window-1) = sqrt(cov(data_pom))/mean(data_pom); % koeficient variabilnosti
+    V(i+compute_window-1) = nasobok_koef*sqrt(cov(data_pom))/mean(data_pom); % koeficient variabilnosti
     K(i+compute_window-1)  = kurtosis(data_pom); % sikmost
-    Skw(i+compute_window-1) = max(skewness(data_pom),0); % spicatost
+    Skw(i+compute_window-1) = nasobok_spic*max(skewness(data_pom),0); % spicatost
 
     %d0(:) = 0;
     %d0 = data_pom - m; % centrovane data
@@ -80,6 +82,7 @@ title('\color{black}sikmost, \color{magenta}spicatost ,\color{cyan}koef. var.');
 
 
 %PRINTY
+
 m(1) = mean(data_plot); % klzavy priemer
 s(1)  = sqrt(cov(data_plot)); % smerodajna odchylka
 V(1) = sqrt(cov(data_plot))/mean(data_plot); % koeficient variabilnosti
