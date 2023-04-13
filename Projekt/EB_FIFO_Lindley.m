@@ -17,16 +17,19 @@ Y = (log(Plost))/(-d);
 % Inicializácia buffra
 q = zeros(1,dlzkaPcapu);
 zahodene = zeros(1,dlzkaPcapu);
+kapacita = zeros(1,dlzkaPcapu);
 
 %i==1
 data_cw = Nt(1:compute_window);
 [c,velkost_buffra] = vypocitaj_kapacitu(data_cw,Y,d);
+kapacita(1) = c;
 klzavy_priemer = zeros(1,dlzkaPcapu);
 
 for i=compute_window+1:dlzkaPcapu-1
 
     if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem nasobkov shiftu..
         [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,i,c,velkost_buffra);
+        kapacita(i) = c;
         klzavy_priemer(i) = mean(Nt(i-compute_window:i));
         continue
     end
@@ -38,6 +41,7 @@ for i=compute_window+1:dlzkaPcapu-1
 
     [c,velkost_buffra] = vypocitaj_kapacitu(data_cw,Y,d);
     [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,i,c,velkost_buffra);
+    kapacita(i) = c;
 end
 
 mean_zahodene = mean(zahodene);
@@ -47,9 +51,12 @@ mean_Nt = mean(Nt);
 subcislo = 3;
 subplot(subcislo,1,1);
 plot(Nt);
-title("data");
 hold on 
 plot(klzavy_priemer,'red');
+hold on 
+plot(kapacita,'black');
+title("Compute window = "+compute_window);
+legend("tok","priemer","kapacita");
 xlim([0 dlzkaPcapu]);
 hold off
 subplot(subcislo,1,2);
