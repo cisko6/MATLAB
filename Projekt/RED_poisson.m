@@ -5,7 +5,7 @@ pocet_generovanych = 10000;
 compute_window = 40;
 shift = 40;
 
-nasobok_lambdy = 1.3;
+nasobok_lambdy = 1.1;
 lambda_1 = 50;
 lambda_2 = 70;
 lambda_3 = 90;

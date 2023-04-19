@@ -5,8 +5,8 @@ pocet_generovanych = 10000;
 lambda = 50;
 compute_window = 40;
 shift = 20;
-d = 0.03;
-Plost = 0.1;
+d = 0.1;
+Plost = 0.05;
 
 %generovanie poisson
 for i=1:pocet_generovanych
@@ -38,6 +38,7 @@ zahodene = zeros(1,dlzka_dat);
 %i==1
 data_cw = data(1:compute_window);
 [c,velkost_buffra] = vypocitaj_poisson_kapacitu(lambda,Plost,d);
+kapacita(compute_window) = c;
 
 klzavy_priemer = zeros(1,dlzka_dat);
 for i=compute_window+1:dlzka_dat-1
@@ -45,12 +46,14 @@ for i=compute_window+1:dlzka_dat-1
     if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem nasobkov shiftu..
         [q,zahodene] = vloz_do_buffra(data,q,zahodene,i,c,velkost_buffra);
         klzavy_priemer(i) = mean(data(i-compute_window:i));
+        kapacita(i) = c;
         continue
     end
 
     %nastavenie c,velkosti buffra a hodenie do buffru
     data_cw  = data(i-compute_window:i);
     klzavy_priemer(i) = mean(data_cw);
+    kapacita(i) = c;
 
     [c,velkost_buffra] = vypocitaj_poisson_kapacitu(lambda,Plost,d);
     [q,zahodene] = vloz_do_buffra(data,q,zahodene,i,c,velkost_buffra);
@@ -68,7 +71,9 @@ subplot(subcislo,1,1);
 plot(data);
 hold on
 plot(klzavy_priemer);
-title("data");
+hold on
+plot(kapacita);
+title("data,"+"d="+d+", Plost="+Plost);
 xlim([0 dlzka_dat]);
 
 subplot(subcislo,1,2);
@@ -87,7 +92,8 @@ zz = rand(1);
 
 function [c,velkost_buffra] = vypocitaj_poisson_kapacitu(lambda,Plost,d)
     % vypocet thety
-    theta = log(log(Plost)/(-d * lambda));
+    %theta = log(log(Plost)/(-d * lambda));
+    theta = log(1-log(Plost)/(d*lambda));
 
     % nastavenie kapacity
     c = (lambda*((exp(theta))-1))/theta;
