@@ -80,7 +80,7 @@ plot(klzavy_priemer);
 hold on
 plot(kapacita);
 title("data");
-legend('tok','klzavy priemer','kapacita');
+legend('tok','klzavy priemer','kapacita','Location','northwest');
 xlim([0 dlzka_dat-1]);
 
 subplot(subcislo,1,2);
@@ -88,7 +88,7 @@ plot(q);
 hold on
 plot(velkost_buffra);
 title("queue");
-legend('queue','velkost buffra')
+legend('queue','velkost buffra','Location','northwest')
 xlim([0 dlzka_dat]);
 
 subplot(subcislo,1,3);
