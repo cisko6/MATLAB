@@ -15,7 +15,7 @@ min_th = 0.7;
 pravd_min_th = 0.7;
 
 %generuj poisson
-data = zeros(1,pocet_generovanych*3);
+data = zeros(1,pocet_generovanych);
 dlzka_dat = 1;
 
 [data, dlzka_dat] = generuj_poisson(data,pocet_generovanych,lambda_1,dlzka_dat,0);
@@ -71,6 +71,11 @@ end
 mean_zahodene = mean(zahodene);
 %mean_data = mean(data(1:count));
 
+zmena_toku = zeros(1,dlzka_dat);
+zmena_toku(dlzka_1) = lambda_3 + 50;
+zmena_toku(dlzka_1+dlzka_2) = lambda_3+50;
+
+
 %Vypisy
 subcislo = 4;
 subplot(subcislo,1,1);
@@ -79,6 +84,8 @@ hold on
 plot(klzavy_priemer);
 hold on
 plot(kapacita);
+hold on
+plot(zmena_toku);
 title("data");
 legend('tok','klzavy priemer','kapacita','Location','northwest');
 xlim([0 dlzka_dat-1]);
