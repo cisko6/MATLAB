@@ -3,13 +3,12 @@ clc
 
 pocet_generovanych = 10000;
 compute_window = 40;
-shift = 40;
+shift = 20;
 
-nasobok_lambdy = 1.1;
 lambda_1 = 50;
 lambda_2 = 70;
 lambda_3 = 90;
-d = 0.05;
+d = 0.1;
 Plost = 0.1;
 
 min_th = 0.7;
@@ -32,25 +31,38 @@ zahodene = zeros(1,dlzka_dat);
 zahodene_RED = zeros(1,dlzka_dat);
 %i==1
 data_cw = data(1:compute_window);
-c = nasobok_lambdy*lambda_1;
-n = d*c;
-
+[c,n] = vypocitaj_poisson_kapacitu(lambda_1,Plost,d);
+kapacita(compute_window) = c;
+velkost_buffra(compute_window) = n;
 klzavy_priemer = zeros(1,dlzka_dat);
+
 for i=compute_window+1:dlzka_dat-1
 
     if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem nasobkov shiftu..
         [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th);
         klzavy_priemer(i) = mean(data(i-compute_window:i));
+        kapacita(i) = c;
+        velkost_buffra(i) = n;
         continue
     end
 
     %nastavenie c,velkosti buffra a hodenie do buffru
     data_cw  = data(i-compute_window:i);
-    klzavy_priemer(i) = mean(data_cw);
 
-    c = nasobok_lambdy*lambda_1;
-    n = d*c;
+    if i < dlzka_1
+        lambda = lambda_1;
+    elseif i > dlzka_1 && i < (dlzka_1 + dlzka_2)
+        lambda = lambda_2;
+    elseif i > (dlzka_1 + dlzka_2)
+        lambda = lambda_3;
+    end
+
+    [c,n] = vypocitaj_poisson_kapacitu(lambda,Plost,d);
     [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th);
+
+    klzavy_priemer(i) = mean(data_cw);
+    kapacita(i) = c;
+    velkost_buffra(i) = n;
 end
 
 
@@ -65,12 +77,18 @@ subplot(subcislo,1,1);
 plot(data);
 hold on
 plot(klzavy_priemer);
+hold on
+plot(kapacita);
 title("data");
-xlim([0 dlzka_dat]);
+legend('tok','klzavy priemer','kapacita');
+xlim([0 dlzka_dat-1]);
 
 subplot(subcislo,1,2);
 plot(q);
-title("queue, c = "+c+", velkost buffra = "+n);
+hold on
+plot(velkost_buffra);
+title("queue");
+legend('queue','velkost buffra')
 xlim([0 dlzka_dat]);
 
 subplot(subcislo,1,3);
@@ -150,5 +168,15 @@ function [data,dlzka_dat] = generuj_poisson(data, pocet_generovanych, lambda, dl
     end
 
     dlzka_dat = count;
+
 end
 
+function [c,n] = vypocitaj_poisson_kapacitu(lambda,Plost,d)
+    % vypocet thety
+    %theta = log(log(Plost)/(-d * lambda));
+    theta = log(1-log(Plost)/(d*lambda));
+
+    % nastavenie kapacity
+    c = (lambda*((exp(theta))-1))/theta;
+    n = d*c;
+end

@@ -6,7 +6,7 @@ lambda = 50;
 compute_window = 40;
 shift = 20;
 d = 0.1;
-Plost = 0.05;
+Plost = 0.2;
 
 %generovanie poisson
 for i=1:pocet_generovanych
