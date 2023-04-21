@@ -37,16 +37,18 @@ zahodene = zeros(1,dlzka_dat);
 
 %i==1
 data_cw = data(1:compute_window);
-[c,velkost_buffra] = vypocitaj_poisson_kapacitu(lambda,Plost,d);
+[c,n] = vypocitaj_poisson_kapacitu(lambda,Plost,d);
 kapacita(compute_window) = c;
+velkost_buffra(compute_window) = n;
 
 klzavy_priemer = zeros(1,dlzka_dat);
 for i=compute_window+1:dlzka_dat-1
 
     if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem nasobkov shiftu..
-        [q,zahodene] = vloz_do_buffra(data,q,zahodene,i,c,velkost_buffra);
+        [q,zahodene] = vloz_do_buffra(data,q,zahodene,i,c,n);
         klzavy_priemer(i) = mean(data(i-compute_window:i));
         kapacita(i) = c;
+        velkost_buffra(i) = n;
         continue
     end
 
@@ -54,9 +56,10 @@ for i=compute_window+1:dlzka_dat-1
     data_cw  = data(i-compute_window:i);
     klzavy_priemer(i) = mean(data_cw);
     kapacita(i) = c;
+    velkost_buffra(i) = n;
 
-    [c,velkost_buffra] = vypocitaj_poisson_kapacitu(lambda,Plost,d);
-    [q,zahodene] = vloz_do_buffra(data,q,zahodene,i,c,velkost_buffra);
+    [c,n] = vypocitaj_poisson_kapacitu(lambda,Plost,d);
+    [q,zahodene] = vloz_do_buffra(data,q,zahodene,i,c,n);
 end
 
 
@@ -73,12 +76,16 @@ hold on
 plot(klzavy_priemer);
 hold on
 plot(kapacita);
+legend('tok','klzavy priemer','kapacita','Location','northwest');
 title("data,"+"d="+d+", Plost="+Plost);
-xlim([0 dlzka_dat]);
+xlim([0 dlzka_dat-1]);
 
 subplot(subcislo,1,2);
 plot(q);
-title("queue, c = "+c+", velkost buffra = "+velkost_buffra);
+hold on
+plot(velkost_buffra);
+legend('queue','velkost buffra','Location','northwest');
+title("queue, c = "+c+", velkost buffra = "+n);
 xlim([0 dlzka_dat]);
 
 subplot(subcislo,1,3);

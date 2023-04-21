@@ -85,8 +85,9 @@ function [c,velkost_buffra] = vypocitaj_kapacitu(data_cw,Y,d)
     for k=0:max_number
         n = 0;
         n = numel(find(data_cw==k));
-        pdf(k+1) = n/max_number;
+        pdf(k+1) = n/length(data_cw);
     end
+    sumpdf = sum(pdf);
     dlzkaPdf = length(pdf);
 
     % vypocet thety

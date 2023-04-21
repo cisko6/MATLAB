@@ -1,42 +1,36 @@
 clear
 clc
 
-pocet_generovanych = 10000;
 compute_window = 40;
 shift = 20;
 
-lambda_1 = 50;
-lambda_2 = 70;
-lambda_3 = 90;
-d = 0.1;
-Plost = 0.1;
+pocet_generovanych = 100;
+max_hodnota = 10;
+d = 10;
+Plost = 0.05;
 
 min_th = 0.7;
 pravd_min_th = 0.7;
 
-%generuj poisson
-data = zeros(1,pocet_generovanych);
-dlzka_dat = 1;
+Y = (log(Plost))/(-d);
+pravd_na_1 = 0.52;
 
-[data, dlzka_dat] = generuj_poisson(data,pocet_generovanych,lambda_1,dlzka_dat,0);
-dlzka_1 = dlzka_dat;
-[data, dlzka_dat] = generuj_poisson(data,pocet_generovanych,lambda_2,dlzka_dat,1);
-dlzka_2 = dlzka_dat - dlzka_1;
-[data, dlzka_dat] = generuj_poisson(data,pocet_generovanych,lambda_3,dlzka_dat,1);
-dlzka_3 = dlzka_dat - dlzka_2 - dlzka_1;
+%generuj bernoulli
+data = binornd(max_hodnota,pravd_na_1,1,pocet_generovanych);
+
 
 % Inicializácia buffra
-q = zeros(1,dlzka_dat);
-zahodene = zeros(1,dlzka_dat);
-zahodene_RED = zeros(1,dlzka_dat);
+q = zeros(1,pocet_generovanych);
+zahodene = zeros(1,pocet_generovanych);
+zahodene_RED = zeros(1,pocet_generovanych);
 %i==1
 data_cw = data(1:compute_window);
-[c,n] = vypocitaj_poisson_kapacitu(lambda_1,Plost,d);
+[c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1);%%%%%%%
 kapacita(compute_window) = c;
 velkost_buffra(compute_window) = n;
-klzavy_priemer = zeros(1,dlzka_dat);
+klzavy_priemer = zeros(1,pocet_generovanych);
 
-for i=compute_window+1:dlzka_dat-1
+for i=compute_window+1:pocet_generovanych-1
 
     if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem nasobkov shiftu..
         [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th);
@@ -49,15 +43,7 @@ for i=compute_window+1:dlzka_dat-1
     %nastavenie c,velkosti buffra a hodenie do buffru
     data_cw  = data(i-compute_window:i);
 
-    if i < dlzka_1
-        lambda = lambda_1;
-    elseif i > dlzka_1 && i < (dlzka_1 + dlzka_2)
-        lambda = lambda_2;
-    elseif i > (dlzka_1 + dlzka_2)
-        lambda = lambda_3;
-    end
-
-    [c,n] = vypocitaj_poisson_kapacitu(lambda,Plost,d);
+    [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1);
     [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th);
 
     klzavy_priemer(i) = mean(data_cw);
@@ -71,10 +57,6 @@ end
 mean_zahodene = mean(zahodene);
 %mean_data = mean(data(1:count));
 
-zmena_toku = zeros(1,dlzka_dat);
-zmena_toku(dlzka_1) = lambda_3 + 50;
-zmena_toku(dlzka_1+dlzka_2) = lambda_3+50;
-
 
 %Vypisy
 subcislo = 4;
@@ -84,11 +66,9 @@ hold on
 plot(klzavy_priemer);
 hold on
 plot(kapacita);
-hold on
-plot(zmena_toku);
-title("data,"+"d="+d+", Plost="+Plost);
+title("d="+d+", Plost="+Plost);
 legend('tok','klzavy priemer','kapacita','Location','northwest');
-xlim([0 dlzka_dat-1]);
+xlim([0 pocet_generovanych-1]);
 
 subplot(subcislo,1,2);
 plot(q);
@@ -96,17 +76,17 @@ hold on
 plot(velkost_buffra);
 title("queue");
 legend('queue','velkost buffra','Location','northwest')
-xlim([0 dlzka_dat]);
+xlim([0 pocet_generovanych]);
 
 subplot(subcislo,1,3);
 plot(zahodene);
 title("zahodene pakety");
-xlim([0 dlzka_dat]);
+xlim([0 pocet_generovanych]);
 
 subplot(subcislo,1,4);
 plot(zahodene_RED);
 title("zahodene pakety_RED");
-xlim([0 dlzka_dat]);
+xlim([0 pocet_generovanych]);
 
 %fprintf("mean_data: %f\n",mean_data);
 zz = rand(1);
@@ -129,7 +109,7 @@ function [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahode
                     end
                 else
                     %zahodi
-                    zahodene(i+1) = zahodene(i+1) + 1;
+                    %zahodene(i+1) = zahodene(i+1) + 1;
                     zahodene_RED(i+1) = zahodene_RED(i+1) + 1;
                 end
             end
@@ -146,44 +126,13 @@ function [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahode
 
 end
 
-function [data,dlzka_dat] = generuj_poisson(data, pocet_generovanych, lambda, dlzka_dat, was_here)
-
-    %generovanie poisson
-    for i=1:pocet_generovanych
-        r = 1.*rand();
-        x(i) = (-log(1-r))/lambda;
-    end
-    T = cumsum(x);
-
-
-    %vzorkovanie
-    if was_here==1
-        count = dlzka_dat + 1;
-        data(count) = data(count) + 1;
-    else
-        count = dlzka_dat;
-        data(count) = data(count) + 1;
-    end
-
-    for i=2:pocet_generovanych
-        if floor(T(i)) > floor(T(i-1))
-            count = count + 1;
-            data(count) = data(count) + 1;
-            continue
-        end
-        data(count) = data(count) + 1;
-    end
-
-    dlzka_dat = count;
-
-end
-
-function [c,n] = vypocitaj_poisson_kapacitu(lambda,Plost,d)
+function [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1)
     % vypocet thety
-    %theta = log(log(Plost)/(-d * lambda));
-    theta = log(1-log(Plost)/(d*lambda));
+    theta = log(exp(Y)-1+pravd_na_1)-log(pravd_na_1);
 
-    % nastavenie kapacity
-    c = (lambda*((exp(theta))-1))/theta;
+    % nastavenie kapacity a n
+    c = 1/theta * log(1-pravd_na_1+pravd_na_1*exp(theta));
     n = d*c;
 end
+
+
