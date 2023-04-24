@@ -4,7 +4,7 @@ clc
 compute_window = 40;
 shift = 20;
 
-pocet_generovanych = 100;
+pocet_generovanych = 1000;
 max_hodnota = 10;
 d = 10;
 Plost = 0.05;
