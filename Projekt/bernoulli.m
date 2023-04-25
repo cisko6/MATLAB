@@ -133,6 +133,7 @@ function [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1)
     % nastavenie kapacity a n
     c = 1/theta * log(1-pravd_na_1+pravd_na_1*exp(theta));
     n = d*c;
+    c = c * 10;
 end
 
 
