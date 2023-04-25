@@ -1,23 +1,29 @@
 clear
 clc
 
+pravd_prepocitania = 0.5;
 compute_window = 40;
-shift = 20;
 
-pocet_generovanych = 1000;
-max_hodnota = 10;
 d = 10;
 Plost = 0.05;
 
-min_th = 0.7;
+min_th = 0.8;
 pravd_min_th = 0.7;
 
 Y = (log(Plost))/(-d);
+
+max_hodnota_1 = 10;
+max_hodnota_2 = 20;
+pocet_generovanych_1 = 1000;
+pocet_generovanych_2 = 1000;
+
 pravd_na_1 = 0.52;
 
+pocet_generovanych = pocet_generovanych_1 + pocet_generovanych_2;
 %generuj bernoulli
-data = binornd(max_hodnota,pravd_na_1,1,pocet_generovanych);
-
+data = zeros(1,pocet_generovanych+1);
+data(1:pocet_generovanych_1) = binornd(max_hodnota_1,pravd_na_1,1,pocet_generovanych_1);
+data(pocet_generovanych_1+1:pocet_generovanych) = binornd(max_hodnota_2,pravd_na_1,1,pocet_generovanych_2);
 
 % Inicializácia buffra
 q = zeros(1,pocet_generovanych);
@@ -25,14 +31,15 @@ zahodene = zeros(1,pocet_generovanych);
 zahodene_RED = zeros(1,pocet_generovanych);
 %i==1
 data_cw = data(1:compute_window);
-[c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1);%%%%%%%
+[c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1);
 kapacita(compute_window) = c;
 velkost_buffra(compute_window) = n;
 klzavy_priemer = zeros(1,pocet_generovanych);
 
+pocet_prepocitani = 0;
 for i=compute_window+1:pocet_generovanych-1
-
-    if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem nasobkov shiftu..
+    pom = n * pravd_prepocitania;
+    if q(i) > pom
         [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th);
         klzavy_priemer(i) = mean(data(i-compute_window:i));
         kapacita(i) = c;

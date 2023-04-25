@@ -1,23 +1,59 @@
 clear
 clc
 
+% Parametre ON OFF
+alfa = 0.95;
+beta = 0.95;
+sample_size = 10;
+pocet_generovanych = 2000;
+stav = 1;
+
+% Parametre 
 compute_window = 40;
-shift = 20;
-
-pocet_generovanych = 1000;
-max_hodnota = 10;
-d = 10;
 Plost = 0.05;
+d = 10;
 
-min_th = 0.7;
+pravd_prepocitania = 0.5;
+min_th = 0.8;
 pravd_min_th = 0.7;
 
-Y = (log(Plost))/(-d);
-pravd_na_1 = 0.52;
 
-%generuj bernoulli
-data = binornd(max_hodnota,pravd_na_1,1,pocet_generovanych);
 
+
+counter_one = 0;
+counter_zero = 0;
+
+% generovanie sekvencie bitov
+for i=1:pocet_generovanych
+    if stav == 1
+        data(i) = 1;
+        counter_one = counter_one + 1;
+
+        pravd = 1.*rand();
+        if pravd >= (1 - alfa)
+            stav = 0;
+        end
+    else
+        data(i) = 0;
+        counter_zero = counter_zero + 1;
+
+        pravd = 1.*rand();
+        if pravd >= (1-beta)
+            stav = 1;
+        end
+    end
+end
+
+% samplovanie dat
+sampled_data = zeros(1,pocet_generovanych/sample_size);
+
+pom_sum = sum(data(1:sample_size));
+sampled_data(1) = pom_sum;
+
+for i=1:(pocet_generovanych/sample_size)-1
+    pom_sum = sum(data((i*sample_size)+1:(i*sample_size)+sample_size));
+    sampled_data(i+1) = pom_sum;
+end
 
 % Inicializácia buffra
 q = zeros(1,pocet_generovanych);
@@ -25,14 +61,15 @@ zahodene = zeros(1,pocet_generovanych);
 zahodene_RED = zeros(1,pocet_generovanych);
 %i==1
 data_cw = data(1:compute_window);
-[c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1);%%%%%%%
+[c,n] = vypocitaj_markovovu_kapacitu(Plost,d,alfa,beta);
 kapacita(compute_window) = c;
 velkost_buffra(compute_window) = n;
 klzavy_priemer = zeros(1,pocet_generovanych);
 
 for i=compute_window+1:pocet_generovanych-1
 
-    if mod(i,shift) ~= 0 % prejdu do vnutra vsetky okrem nasobkov shiftu..
+    pom = n * pravd_prepocitania;
+    if q(i) > pom
         [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th);
         klzavy_priemer(i) = mean(data(i-compute_window:i));
         kapacita(i) = c;
@@ -43,20 +80,13 @@ for i=compute_window+1:pocet_generovanych-1
     %nastavenie c,velkosti buffra a hodenie do buffru
     data_cw  = data(i-compute_window:i);
 
-    [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1);
+    [c,n] = vypocitaj_markovovu_kapacitu(Plost,d,alfa,beta);
     [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th);
 
     klzavy_priemer(i) = mean(data_cw);
     kapacita(i) = c;
     velkost_buffra(i) = n;
 end
-
-
-
-
-mean_zahodene = mean(zahodene);
-%mean_data = mean(data(1:count));
-
 
 %Vypisy
 subcislo = 4;
@@ -88,9 +118,10 @@ plot(zahodene_RED);
 title("zahodene pakety RED");
 xlim([0 pocet_generovanych]);
 
-%fprintf("mean_data: %f\n",mean_data);
-zz = rand(1);
-
+function [c,n] = vypocitaj_markovovu_kapacitu(Plost,d,alfa,beta)
+    c = log(Plost)/( d*log( ((Plost^(-1/d))*(1-alfa)-1+alfa+beta) -d*log(Plost^(-1/d)) -d*log((Plost^(-1/d)) -1+beta)));
+    n = d*c;
+end
 
 function [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th)
         
@@ -125,15 +156,3 @@ function [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahode
         end
 
 end
-
-function [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1)
-    % vypocet thety
-    theta = log(exp(Y)-1+pravd_na_1)-log(pravd_na_1);
-
-    % nastavenie kapacity a n
-    c = 1/theta * log(1-pravd_na_1+pravd_na_1*exp(theta));
-    n = d*c;
-    c = c * 10;
-end
-
-
