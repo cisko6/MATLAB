@@ -66,7 +66,7 @@ hold on
 plot(klzavy_priemer);
 hold on
 plot(kapacita);
-title("d="+d+", Plost="+Plost);
+title("pravd na 1="+pravd_na_1+", d="+d+", Plost="+Plost);
 legend('tok','klzavy priemer','kapacita','Location','northwest');
 xlim([0 pocet_generovanych-1]);
 
