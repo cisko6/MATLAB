@@ -18,8 +18,6 @@ min_th = 0.8;
 pravd_min_th = 0.7;
 
 
-
-
 counter_one = 0;
 counter_zero = 0;
 
