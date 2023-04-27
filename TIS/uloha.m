@@ -1,14 +1,20 @@
 clear
 clc
 
-compute_window = 5;
+compute_window = 20;
 nasobok_koef = 20;
 nasobok_spic = 5;
 
-%M = readtable("C:\Users\patri\Downloads\miniShark\01 tsharkPONDELOK4_0_0.csv");ntbk
 %M = readtable("C:\Users\patri\Downloads\tok\01 tsharkPONDELOK4.csv");%full csv
-M = readtable("C:\Users\patri\Downloads\miniTok\01 tsharkPONDELOK4_0.csv");%minitok
-%X = readtable("C:\Users\patri\Downloads\tok\01 tsharkPONDELOK4_0.csv"); M = X(2500000:5000001,1:14); % prvy kopec
+%M = readtable("C:\Users\patri\Downloads\miniTok\01 tsharkPONDELOK4_0.csv");%minitok
+
+%X = readtable("C:\Users\patri\Downloads\tok\01 tsharkPONDELOK4_0.csv"); M = X(2500000:5000001,1:14); % prva cast, CW = 100
+%M = readtable("C:\Users\patri\Downloads\časti_toku\druha_cast\druha_cast.csv");%druha cast CW = 20
+%M = readtable("C:\Users\patri\Downloads\časti_toku\tretia_cast\tretia_cast.csv");
+%M = readtable("C:\Users\patri\Downloads\časti_toku\stvrta_cast\01 tsharkPONDELOK4_5_1.csv");
+M = readtable("C:\Users\patri\Downloads\file.csv");
+
+%M = readtable("C:\Users\patri\Downloads\tok\01 tsharkPONDELOK4_6.csv");
 
 dlzka_csv = height(M)-1;
 
