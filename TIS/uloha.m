@@ -1,18 +1,27 @@
 clear
 clc
 
-compute_window = 2;
+compute_window = 10;
 nasobok_koef = 20;
 nasobok_spic = 5;
 
+num_bins_pocty_medzery = 2000;
+num_bins_kB = 20;
+num_bins_TCP_medzery = 1000;
+num_bins_UDP_medzery = 800;
+
+num_bins_pocty = 10;
+num_bins_TCP = 10;
+num_bins_UDP = 12;
+
 %M = readtable("C:\Users\patri\Downloads\tok\01 tsharkPONDELOK4.csv");%full csv
 %M = readtable("C:\Users\patri\Downloads\miniTok\01 tsharkPONDELOK4_0.csv");%minitok
-M = readtable("C:\Users\patri\Downloads\miniShark\01 tsharkPONDELOK4_0_0.csv");%minitok ntbk
+%M = readtable("C:\Users\patri\Downloads\miniShark\01 tsharkPONDELOK4_0_0.csv");%minitok ntbk
 
 %M = readtable("C:\Users\patri\Downloads\časti_toku\druha_cast\druha_cast.csv");%druha cast ntbk
 %M = readtable("C:\Users\patri\Downloads\časti_toku\tretia_cast\tretia_cast.csv");%tretia cast ntbk
 %M = readtable("C:\Users\patri\Downloads\časti_toku\stvrta_cast\01 tsharkPONDELOK4_5_0.csv");%stvrta cast ntbk
-%M = readtable("C:\Users\patri\Downloads\časti_toku\piata_cast\piata_cast.csv");%piata cast ntbk
+M = readtable("C:\Users\patri\Downloads\časti_toku\piata_cast\piata_cast.csv");%piata cast ntbk
 
 
 %X = readtable("C:\Users\patri\Downloads\tok\01 tsharkPONDELOK4_0.csv"); M = X(2500000:5000001,1:14); % prva cast, CW = 100
@@ -225,7 +234,7 @@ xlim([0 index]);
 title("\color{black}sikmost, \color{magenta}"+nasobok_spic+"x spicatost ,\color{cyan} "+nasobok_koef+"xkoef. var.");
 
 subplot(subcislo,1,3);
-histogram(data_plot, 'Normalization', 'probability');
+histogram(data_plot, 'Normalization', 'probability','NumBins',num_bins_pocty);
 title('histogram toku');
 
 subplot(subcislo,1,4);
@@ -233,7 +242,7 @@ plot(medzery);
 title('medzery');
 
 subplot(subcislo,1,5);
-histogram(medzery, 'Normalization', 'probability');
+histogram(medzery, 'Normalization', 'probability','NumBins',num_bins_pocty_medzery);
 title('histogram medzier');
 
 figure
@@ -249,7 +258,7 @@ hold on
 plot(s_kB,'green');
 hold off
 xlim([0 index]);
-title("kB - Compute window = "+compute_window+", \color{blue}tok ,\color{red}priemer, \color{green}smer.odchylka");
+title("kB - Compute window = "+compute_window+", \color{blue}kB ,\color{red}priemer, \color{green}smer.odchylka");
 
 subplot(subcislo2,1,2);
 plot(V_kB,'cyan');
@@ -262,11 +271,11 @@ xlim([0 index]);
 title("\color{black}sikmost, \color{magenta}"+nasobok_spic+"x spicatost ,\color{cyan} "+nasobok_koef+"xkoef. var.");
 
 subplot(subcislo2,1,3);
-histogram(data_plot_kB, 'Normalization', 'probability');
+histogram(data_plot_kB, 'Normalization', 'probability','NumBins',num_bins_kB);
 title("histogram kB");
 
 figure
-%%%%%%%%%%% TCP %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%% TCP %%%%%%%%%%%%%%%%%%%
 subcislo3 = 5;
 data_TCP = TCP(1:index);
 data_TCP_medzery = medzery_TCP(1:index_medzery_TCP);
@@ -291,7 +300,7 @@ xlim([0 index]);
 title("\color{black}sikmost, \color{magenta}"+nasobok_spic+"x spicatost ,\color{cyan} "+nasobok_koef+"xkoef. var.");
 
 subplot(subcislo3,1,3);
-histogram(data_TCP, 'Normalization', 'probability');
+histogram(data_TCP, 'Normalization', 'probability','NumBins',num_bins_TCP);
 title("histogram TCP");
 
 subplot(subcislo3,1,4);
@@ -300,11 +309,11 @@ xlim([0 index_medzery_TCP]);
 title('medzery');
 
 subplot(subcislo3,1,5);
-histogram(data_TCP_medzery, 'Normalization', 'probability','NumBins',100);
+histogram(data_TCP_medzery, 'Normalization', 'probability','NumBins',num_bins_TCP_medzery);
 title('histogram medzier');
 figure
 
-%%%%%%%%%%% UDP %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%% UDP %%%%%%%%%%%%%%%%%%%
 data_UDP = UDP(1:index);
 data_UDP_medzery = medzery_UDP(1:index_medzery_UDP);
 
@@ -328,7 +337,7 @@ xlim([0 index]);
 title("\color{black}sikmost, \color{magenta}"+nasobok_spic+"x spicatost ,\color{cyan} "+nasobok_koef+"xkoef. var.");
 
 subplot(subcislo3,1,3);
-histogram(data_UDP, 'Normalization', 'probability');
+histogram(data_UDP, 'Normalization', 'probability','NumBins',num_bins_UDP);
 title("histogram UDP");
 
 subplot(subcislo3,1,4);
@@ -337,7 +346,7 @@ xlim([0 index_medzery_UDP]);
 title('medzery');
 
 subplot(subcislo3,1,5);
-histogram(data_UDP_medzery, 'Normalization', 'probability','NumBins',100);
+histogram(data_UDP_medzery, 'Normalization', 'probability','NumBins',num_bins_UDP_medzery);
 title('histogram medzier');
 
 
