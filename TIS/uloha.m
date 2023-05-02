@@ -1,7 +1,7 @@
 clear
 clc
 
-compute_window = 10;
+compute_window = 2;
 nasobok_koef = 20;
 nasobok_spic = 5;
 
@@ -104,7 +104,7 @@ for i=1:dlzka_csv
                 continue
             end
 
-            for j=i:dlzka_csv-i
+            for j=i:dlzka_csv
                 if protokoly_vsetky(j+1) == "TCP" % hladanie dalsi TCP
                     novy_TCP_cas = sekundy(j+1);
                     break
@@ -137,7 +137,7 @@ for i=1:dlzka_csv
                 continue
             end
 
-            for j=i:dlzka_csv-i
+            for j=i:dlzka_csv
                 if protokoly_vsetky(j+1) == "UDP" % hladanie dalsi UDP
                     novy_UDP_cas = sekundy(j+1);
                     break
@@ -146,7 +146,6 @@ for i=1:dlzka_csv
             if novy_UDP_cas == 0 %ci neni posledny
                 continue
             end
-
 
             if stary_UDP_cas > 30 && novy_UDP_cas < 30
                 medzery_UDP(index_medzery_UDP) = ( 60 - stary_UDP_cas ) + novy_UDP_cas;
