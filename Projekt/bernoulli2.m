@@ -10,8 +10,6 @@ Plost = 0.05;
 min_th = 0.8;
 pravd_min_th = 0.7;
 
-Y = (log(Plost))/(-d);
-
 max_hodnota_1 = 10;
 max_hodnota_2 = 20;
 pocet_generovanych_1 = 1000;
@@ -19,6 +17,8 @@ pocet_generovanych_2 = 1000;
 
 pravd_na_1 = 0.52;
 
+
+Y = (log(Plost))/(-d);
 pocet_generovanych = pocet_generovanych_1 + pocet_generovanych_2;
 %generuj bernoulli
 data = zeros(1,pocet_generovanych+1);
@@ -31,15 +31,14 @@ zahodene = zeros(1,pocet_generovanych);
 zahodene_RED = zeros(1,pocet_generovanych);
 %i==1
 data_cw = data(1:compute_window);
-[c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1);
+[c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1,max_hodnota_1);
 kapacita(compute_window) = c;
 velkost_buffra(compute_window) = n;
 klzavy_priemer = zeros(1,pocet_generovanych);
 
-pocet_prepocitani = 0;
 for i=compute_window+1:pocet_generovanych-1
     pom = n * pravd_prepocitania;
-    if q(i) > pom
+    if q(i) < pom
         [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th);
         klzavy_priemer(i) = mean(data(i-compute_window:i));
         kapacita(i) = c;
@@ -49,8 +48,13 @@ for i=compute_window+1:pocet_generovanych-1
 
     %nastavenie c,velkosti buffra a hodenie do buffru
     data_cw  = data(i-compute_window:i);
+    
+    if i <= pocet_generovanych_1
+        [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1,max_hodnota_1);
+    else
+        [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1,max_hodnota_2);
+    end
 
-    [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1);
     [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th);
 
     klzavy_priemer(i) = mean(data_cw);
@@ -130,17 +134,20 @@ function [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahode
                 zahodene(i+1) = je_viac - n;
             end
         end
-
 end
 
-function [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1)
-    % vypocet thety
-    theta = log(exp(Y)-1+pravd_na_1)-log(pravd_na_1);
+function [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1,max_hodnota)
 
-    % nastavenie kapacity a n
-    c = 1/theta * log(1-pravd_na_1+pravd_na_1*exp(theta));
-    n = d*c;
-    c = c * 10;
+c = (max_hodnota/2) * 1;
+n = d*c;
+
+% % vypocet thety
+% theta = log((exp(Y/max_hodnota) - 1 + pravd_na_1)/pravd_na_1);
+% 
+% % nastavenie kapacity a n
+% c = 1/theta * log(1 - pravd_na_1 + pravd_na_1*exp(theta));
+% n = d*c;
+% c = c * 10;
 end
 
 

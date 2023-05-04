@@ -21,11 +21,11 @@ num_bins_UDP = 12;
 %M = readtable("C:\Users\patri\Downloads\časti_toku\druha_cast\druha_cast.csv");%druha cast ntbk
 %M = readtable("C:\Users\patri\Downloads\časti_toku\tretia_cast\tretia_cast.csv");%tretia cast ntbk
 %M = readtable("C:\Users\patri\Downloads\časti_toku\stvrta_cast\01 tsharkPONDELOK4_5_0.csv");%stvrta cast ntbk
-M = readtable("C:\Users\patri\Downloads\časti_toku\piata_cast\piata_cast.csv");%piata cast ntbk
+%M = readtable("C:\Users\patri\Downloads\časti_toku\piata_cast\piata_cast.csv");%piata cast ntbk
 
 
 %X = readtable("C:\Users\patri\Downloads\tok\01 tsharkPONDELOK4_0.csv"); M = X(2500000:5000001,1:14); % prva cast, CW = 100
-%M = readtable("C:\Users\patri\Downloads\časti_toku\druha_cast\druha_cast.csv");%druha cast CW = 20
+M = readtable("C:\Users\patri\Downloads\časti_toku\druha_cast\druha_cast.csv");%druha cast CW = 20
 %M = readtable("C:\Users\patri\Downloads\časti_toku\tretia_cast\tretia_cast.csv");
 %M = readtable("C:\Users\patri\Downloads\časti_toku\stvrta_cast\01 tsharkPONDELOK4_5_1.csv");
 %M = readtable("C:\Users\patri\Downloads\časti_toku\piata_cast\piata_cast.csv");
