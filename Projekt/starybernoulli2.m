@@ -1,5 +1,5 @@
 clear
-
+clc
 
 pravd_prepocitania = 0.5;
 compute_window = 40;
@@ -9,9 +9,6 @@ Plost = 0.05;
 
 min_th = 0.8;
 pravd_min_th = 0.7;
-%typ_zahodenia = "linear";
-%typ_zahodenia = "logaritmus";
-typ_zahodenia = "exponential";
 
 max_hodnota_1 = 10;
 max_hodnota_2 = 20;
@@ -19,6 +16,7 @@ pocet_generovanych_1 = 1000;
 pocet_generovanych_2 = 1000;
 
 pravd_na_1 = 0.95;
+
 
 Y = (log(Plost))/(-d);
 pocet_generovanych = pocet_generovanych_1 + pocet_generovanych_2;
@@ -41,7 +39,7 @@ klzavy_priemer = zeros(1,pocet_generovanych);
 for i=compute_window+1:pocet_generovanych-1
     pom = n * pravd_prepocitania;
     if q(i) < pom
-        [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th,typ_zahodenia);
+        [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th);
         klzavy_priemer(i) = mean(data(i-compute_window:i));
         kapacita(i) = c;
         velkost_buffra(i) = n;
@@ -57,7 +55,7 @@ for i=compute_window+1:pocet_generovanych-1
         [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1,max_hodnota_2);
     end
 
-    [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th,typ_zahodenia);
+    [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th);
 
     klzavy_priemer(i) = mean(data_cw);
     kapacita(i) = c;
@@ -101,22 +99,19 @@ plot(zahodene_RED);
 title("zahodene pakety RED");
 xlim([0 pocet_generovanych]);
 
-fprintf("zahodene RED - "+typ_zahodenia+": %f\n",sum(zahodene_RED));
+%fprintf("mean_data: %f\n",mean_data);
 zz = rand(1);
 
 
-function [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th,typ_zahodenia)
+function [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th)
         
         %RED - skontrolovat kapacitu
         min_th_number =  min_th * n;
-        if q(i) > min_th_number % dnu pojde ked buffer > 80%
+        if q(i) > min_th_number % dnu pojde ked q(i) > 80%
 
             for j=1:data(i+1)-c
-                pom_pravd_min_th = pravd_min_th;
-                [pom_pravd_min_th] = zisti_pravd_zahodenia_linear(q(i),pom_pravd_min_th,typ_zahodenia,n);
-
                 r = 1.*rand();
-                if r >= pom_pravd_min_th
+                if r >= pravd_min_th
                     %vlozi
                     q(i+1) = min(q(i+1) + 1, n);
                     je_viac = q(i+1) + 1;
@@ -140,61 +135,9 @@ function [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahode
         end
 end
 
-function [pravd_min_th] = zisti_pravd_zahodenia_linear(buffer,pravd_min_th,typ_zahodenia,n)
-
-    max_84 = 0.84 * n;
-    max_88 = 0.88 * n;
-    max_92 = 0.92 * n;
-    max_96 = 0.96 * n;
-
-    if buffer <= max_84
-        pravd_min_th = 0.70;% 70% pravd zahodenia
-    end
-
-    if buffer > max_84 && buffer <= max_88
-        if typ_zahodenia == "linear"
-            pravd_min_th = 0.75; 
-        end
-        if typ_zahodenia == "logaritmus"
-            pravd_min_th = 0.85;
-        end
-        if typ_zahodenia == "exponential"
-            pravd_min_th = 0.75; 
-        end
-    end
-
-    if buffer > max_88 && buffer <= max_92
-        if typ_zahodenia == "linear"
-            pravd_min_th = 0.80; 
-        end
-        if typ_zahodenia == "logaritmus"
-            pravd_min_th = 0.9;
-        end
-        if typ_zahodenia == "exponential"
-            pravd_min_th = 0.9; 
-        end
-    end
-
-    if buffer > max_92 && buffer <= max_96
-        if typ_zahodenia == "linear"
-            pravd_min_th = 0.85; 
-        end
-        if typ_zahodenia == "logaritmus"
-            pravd_min_th = 0.95;
-        end
-        if typ_zahodenia == "exponential"
-            pravd_min_th = 0.95; 
-        end
-    end
-
-    if buffer > max_96
-        pravd_min_th = 1; % 100% pravd zahodenia
-    end
-end
-
 function [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1,max_hodnota)
 
-c = max_hodnota* pravd_na_1 / 1.5; % delene 2 len preto aby sa niečo zahadzovalo
+c = (max_hodnota/2) * 1;
 n = d*c;
 
 % % vypocet thety
