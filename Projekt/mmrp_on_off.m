@@ -1,7 +1,7 @@
 clear
 
 % Parametre ON OFF
-alfa = 0.1;
+alfa = 0.9;
 beta = 0.1;
 sample_size = 10;
 pocet_generovanych = 2000;
@@ -96,7 +96,7 @@ hold on
 plot(klzavy_priemer);
 hold on
 plot(kapacita);
-title("d="+d+", Plost="+Plost);
+title("d="+d+", Plost="+Plost+", alfa="+alfa+", beta="+beta);
 legend('tok','klzavy priemer','kapacita','Location','northwest');
 xlim([0 sample_length-1]);
 
@@ -203,7 +203,19 @@ function [pravd_min_th] = zisti_pravd_zahodenia_linear(buffer,pravd_min_th,typ_z
         end
     end
 
-    if buffer > max_96
+    if buffer > max_96 && buffer < n
+        if typ_zahodenia == "linear"
+            pravd_min_th = 0.9; 
+        end
+        if typ_zahodenia == "logaritmus"
+            pravd_min_th = 0.98;
+        end
+        if typ_zahodenia == "exponential"
+            pravd_min_th = 0.98; 
+        end
+    end
+
+    if buffer >= n
         pravd_min_th = 1; % 100% pravd zahodenia
     end
 end

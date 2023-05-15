@@ -9,16 +9,16 @@ Plost = 0.05;
 
 min_th = 0.8;
 pravd_min_th = 0.7;
-%typ_zahodenia = "linear";
+typ_zahodenia = "linear";
 %typ_zahodenia = "logaritmus";
-typ_zahodenia = "exponential";
+%typ_zahodenia = "exponential";
 
 max_hodnota_1 = 10;
 max_hodnota_2 = 20;
 pocet_generovanych_1 = 1000;
 pocet_generovanych_2 = 1000;
 
-pravd_na_1 = 0.95;
+pravd_na_1 = 0.2;
 
 Y = (log(Plost))/(-d);
 pocet_generovanych = pocet_generovanych_1 + pocet_generovanych_2;
@@ -187,23 +187,35 @@ function [pravd_min_th] = zisti_pravd_zahodenia_linear(buffer,pravd_min_th,typ_z
         end
     end
 
-    if buffer > max_96
+    if buffer > max_96 && buffer < n
+        if typ_zahodenia == "linear"
+            pravd_min_th = 0.9; 
+        end
+        if typ_zahodenia == "logaritmus"
+            pravd_min_th = 0.98;
+        end
+        if typ_zahodenia == "exponential"
+            pravd_min_th = 0.98; 
+        end
+    end
+
+    if buffer >= n
         pravd_min_th = 1; % 100% pravd zahodenia
     end
 end
 
 function [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1,max_hodnota)
 
-c = max_hodnota* pravd_na_1 / 1.5; % delene 2 len preto aby sa niečo zahadzovalo
+c = max_hodnota* pravd_na_1 ; % delene 2 len preto aby sa niečo zahadzovalo
 n = d*c;
 
 % % vypocet thety
-% theta = log((exp(Y/max_hodnota) - 1 + pravd_na_1)/pravd_na_1);
+%  theta = log((exp(Y/max_hodnota) - 1 + pravd_na_1)/pravd_na_1);
 % 
 % % nastavenie kapacity a n
-% c = 1/theta * log(1 - pravd_na_1 + pravd_na_1*exp(theta));
-% n = d*c;
-% c = c * 10;
+%  c = 1/theta * log(1 - pravd_na_1 + pravd_na_1*exp(theta));
+%  n = d*c;
+%  c = c * 10;
 end
 
 

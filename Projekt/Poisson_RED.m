@@ -200,7 +200,19 @@ function [pravd_min_th] = zisti_pravd_zahodenia_linear(buffer,pravd_min_th,typ_z
         end
     end
 
-    if buffer > max_96
+    if buffer > max_96 && buffer < n
+        if typ_zahodenia == "linear"
+            pravd_min_th = 0.9; 
+        end
+        if typ_zahodenia == "logaritmus"
+            pravd_min_th = 0.98;
+        end
+        if typ_zahodenia == "exponential"
+            pravd_min_th = 0.98; 
+        end
+    end
+
+    if buffer >= n
         pravd_min_th = 1; % 100% pravd zahodenia
     end
 end
