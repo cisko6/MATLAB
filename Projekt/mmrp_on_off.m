@@ -1,8 +1,9 @@
 clear
+clc
 
 % Parametre ON OFF
-alfa = 0.9;
-beta = 0.1;
+alfa = 0.2;
+beta = 0.8;
 sample_size = 10;
 pocet_generovanych = 2000;
 stav = 1;
@@ -10,7 +11,7 @@ stav = 1;
 % Parametre 
 compute_window = 5;
 Plost = 0.05;
-d = 0.1;
+d = 0.5;
 
 pravd_prepocitania = 0.5;
 min_th = 0.8;
@@ -58,7 +59,7 @@ sample_length = length(sampled_data);
 % Inicializácia buffra
 q = zeros(1,sample_length);
 zahodene = zeros(1,sample_length);
-zahodene_RED = zeros(1,sample_length);
+
 %i==1
 data_cw = sampled_data(1:compute_window);
 [c,n] = vypocitaj_markovovu_kapacitu(Plost,d,alfa,beta,sample_size);
@@ -70,7 +71,7 @@ for i=compute_window+1:sample_length-1
 
     pom = n * pravd_prepocitania;
     if q(i) > pom
-        [q,zahodene,zahodene_RED] = vloz_do_buffra(sampled_data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th,typ_zahodenia);
+        [q,zahodene] = vloz_do_buffra(sampled_data,q,zahodene,i,c,n,min_th,pravd_min_th,typ_zahodenia);
         klzavy_priemer(i) = mean(sampled_data(i-compute_window:i));
         kapacita(i) = c;
         velkost_buffra(i) = n;
@@ -81,7 +82,7 @@ for i=compute_window+1:sample_length-1
     data_cw = sampled_data(i-compute_window:i);
 
     [c,n] = vypocitaj_markovovu_kapacitu(Plost,d,alfa,beta,sample_size);
-    [q,zahodene,zahodene_RED] = vloz_do_buffra(sampled_data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th,typ_zahodenia);
+    [q,zahodene] = vloz_do_buffra(sampled_data,q,zahodene,i,c,n,min_th,pravd_min_th,typ_zahodenia);
 
     klzavy_priemer(i) = mean(data_cw);
     kapacita(i) = c;
@@ -89,39 +90,40 @@ for i=compute_window+1:sample_length-1
 end
 
 %Vypisy
-subcislo = 4;
+subcislo = 3;
 subplot(subcislo,1,1);
 plot(sampled_data);
 hold on
 plot(klzavy_priemer);
 hold on
 plot(kapacita);
-title("d="+d+", Plost="+Plost+", alfa="+alfa+", beta="+beta);
-legend('tok','klzavy priemer','kapacita','Location','northwest');
-xlim([0 sample_length-1]);
+title("\color{blue}Poisson\color{black}, alfa = "+alfa+", beta = "+beta+", d = "+d+"s");
+xlabel("Čas");
+ylabel("Počet paketov");
+legend('MMRP','klzavý priemer','kapacita','Location','northwest');
+xlim([0 sample_length]);
 
 subplot(subcislo,1,2);
 plot(q);
 hold on
 plot(velkost_buffra);
-title("queue");
-legend('queue','velkost buffra','Location','northwest')
+title("\color{blue}Buffer");
+xlabel("Čas");
+ylabel("Počet paketov");
+legend('Buffer','veľkost buffra','Location','northwest')
 xlim([0 sample_length]);
 
 subplot(subcislo,1,3);
 plot(zahodene);
-title("zahodene pakety");
+title("\color{blue}Zahodené pakety\color{black}, počet = "+sum(zahodene));
+xlabel("Čas");
+ylabel("Počet paketov");
 xlim([0 sample_length]);
 
-subplot(subcislo,1,4);
-plot(zahodene_RED);
-title("zahodene pakety RED");
-xlim([0 sample_length]);
-
-
-fprintf("zahodene RED - "+typ_zahodenia+": %f\n",sum(zahodene_RED));
-
-function [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th,typ_zahodenia)
+fprintf("zahodene - "+typ_zahodenia+": %f\n",sum(zahodene));
+fprintf("kapacita -  %f\n",mean(kapacita));
+fprintf("velkost_buffra -  %f\n",mean(velkost_buffra));
+function [q,zahodene] = vloz_do_buffra(data,q,zahodene,i,c,n,min_th,pravd_min_th,typ_zahodenia)
         
         %RED - skontrolovat kapacitu
         min_th_number =  min_th * n;
@@ -141,7 +143,7 @@ function [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahode
                     end
                 else
                     %zahodi
-                    zahodene_RED(i+1) = zahodene_RED(i+1) + 1;
+                    zahodene(i+1) = zahodene(i+1) + 1;
                 end
             end
         else

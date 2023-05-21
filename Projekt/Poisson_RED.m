@@ -1,14 +1,14 @@
 clear
+clc
 
 pocet_generovanych = 10000;
 compute_window = 40;
-shift = 20;
 
 lambda_1 = 50;
 lambda_2 = 100;
 lambda_3 = 200;
 d = 0.1;
-Plost = 0.1;
+Plost = 0.5;
 
 pravd_prepocitania = 0.5;
 min_th = 0.7;
@@ -72,50 +72,40 @@ end
 
 
 
-
-mean_zahodene = mean(zahodene);
-%mean_data = mean(data(1:count));
-
-% zmena_toku = zeros(1,dlzka_dat);
-% zmena_toku(dlzka_1) = lambda_3 + 50;
-% zmena_toku(dlzka_1+dlzka_2) = lambda_3+50;
-
-
 %Vypisy
-subcislo = 4;
+subcislo = 3;
 subplot(subcislo,1,1);
 plot(data);
 hold on
 plot(klzavy_priemer);
 hold on
 plot(kapacita);
-% hold on
-% plot(zmena_toku);
-title("data,"+"d="+d+", Plost="+Plost);
-legend('tok','klzavy priemer','kapacita','Location','northwest');
-xlim([0 dlzka_dat-1]);
+title("\color{blue}Poisson\color{black}, d = "+d+"s, Plost = "+Plost*100+"%");
+xlabel("Čas");
+ylabel("Počet paketov");
+legend('Poisson','klzavý priemer','kapacita','Location','northwest');
+xlim([0 dlzka_dat]);
 
 subplot(subcislo,1,2);
 plot(q);
 hold on
 plot(velkost_buffra);
-title("queue");
-legend('queue','velkost buffra','Location','northwest')
+title("\color{blue}Buffer");
+xlabel("Čas");
+ylabel("Počet paketov");
+legend('Buffer','veľkost buffra','Location','northwest')
 xlim([0 dlzka_dat]);
 
 subplot(subcislo,1,3);
 plot(zahodene);
-title("zahodene pakety");
+title("\color{blue}Zahodené pakety\color{black}, počet = "+sum(zahodene));
+xlabel("Čas");
+ylabel("Počet paketov");
 xlim([0 dlzka_dat]);
 
-subplot(subcislo,1,4);
-plot(zahodene_RED);
-title("zahodene pakety_RED");
-xlim([0 dlzka_dat]);
-
-%fprintf("mean_data: %f\n",mean_data);
-zz = rand(1);
-fprintf("zahodene RED - "+typ_zahodenia+": %f\n",sum(zahodene_RED));
+fprintf("zahodene - "+typ_zahodenia+": %f\n",sum(zahodene));
+fprintf("kapacita -  %f\n",mean(kapacita));
+fprintf("velkost_buffra -  %f\n",mean(velkost_buffra));
 
 
 function [q,zahodene,zahodene_RED] = vloz_do_buffra(data,q,zahodene,i,c,n,zahodene_RED,min_th,pravd_min_th,typ_zahodenia)

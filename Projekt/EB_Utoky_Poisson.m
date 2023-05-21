@@ -1,13 +1,15 @@
 clear
 clc
 
-pravd_prepocitania = 0.5;
-compute_window = 40;
+load('C:\Users\patri\Downloads\Utoky\Attack_2_d010.mat')
+Nt=a;
+dlzkaPcapu = length(Nt);
 
+%Parametre
+compute_window = 100;
+pravd_prepocitania = 0.5;
 d = 0.1;
-Plost = 0.05;
-nasobok = 1.2;
-pravd_na_1 = 0.6;
+Plost = 0.5;
 
 min_th = 0.8;
 pravd_min_th = 0.7;
@@ -15,50 +17,38 @@ typ_zahodenia = "linear";
 %typ_zahodenia = "logaritmus";
 %typ_zahodenia = "exponential";
 
-max_hodnota_1 = 10;
-max_hodnota_2 = 20;
-pocet_generovanych_1 = 1000;
-pocet_generovanych_2 = 1000;
-
 
 Y = (log(Plost))/(-d);
-pocet_generovanych = pocet_generovanych_1 + pocet_generovanych_2;
-%generuj bernoulli
-data = zeros(1,pocet_generovanych+1);
-data(1:pocet_generovanych_1) = binornd(max_hodnota_1,pravd_na_1,1,pocet_generovanych_1);
-data(pocet_generovanych_1+1:pocet_generovanych) = binornd(max_hodnota_2,pravd_na_1,1,pocet_generovanych_2);
 
 % Inicializácia buffra
-q = zeros(1,pocet_generovanych);
-zahodene = zeros(1,pocet_generovanych);
+q = zeros(1,dlzkaPcapu);
+zahodene = zeros(1,dlzkaPcapu);
+velkost_buffra = zeros(1,dlzkaPcapu);
+kapacita = zeros(1,dlzkaPcapu);
 
 %i==1
-data_cw = data(1:compute_window);
-[c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1,max_hodnota_1,nasobok);
+data_cw = Nt(1:compute_window);
+[c,n] = vypocitaj_kapacitu(data_cw,Y,d);
 kapacita(compute_window) = c;
 velkost_buffra(compute_window) = n;
-klzavy_priemer = zeros(1,pocet_generovanych);
+n(compute_window) = n;
+klzavy_priemer = zeros(1,dlzkaPcapu);
 
-for i=compute_window+1:pocet_generovanych-1
+
+for i=compute_window+1:dlzkaPcapu-1
     pom = n * pravd_prepocitania;
     if q(i) < pom
-        [q,zahodene] = vloz_do_buffra(data,q,zahodene,i,c,n,min_th,pravd_min_th,typ_zahodenia);
-        klzavy_priemer(i) = mean(data(i-compute_window:i));
+        [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,i,c,n,min_th,pravd_min_th,typ_zahodenia);
+        klzavy_priemer(i) = mean(Nt(i-compute_window:i));
         kapacita(i) = c;
         velkost_buffra(i) = n;
         continue
     end
 
     %nastavenie c,velkosti buffra a hodenie do buffru
-    data_cw  = data(i-compute_window:i);
-    
-    if i <= pocet_generovanych_1
-        [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1,max_hodnota_1,nasobok);
-    else
-        [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1,max_hodnota_2,nasobok);
-    end
-
-    [q,zahodene] = vloz_do_buffra(data,q,zahodene,i,c,n,min_th,pravd_min_th,typ_zahodenia);
+    data_cw  = Nt(i-compute_window:i);
+    [c,n] = vypocitaj_kapacitu(data_cw,Y,d);
+    [q,zahodene] = vloz_do_buffra(Nt,q,zahodene,i,c,n,min_th,pravd_min_th,typ_zahodenia);
 
     klzavy_priemer(i) = mean(data_cw);
     kapacita(i) = c;
@@ -69,16 +59,16 @@ end
 %Vypisy
 subcislo = 3;
 subplot(subcislo,1,1);
-plot(data);
+plot(Nt);
 hold on
 plot(klzavy_priemer);
 hold on
 plot(kapacita);
-title("\color{blue}Bernoulli\color{black}, pravdNa1 = "+pravd_na_1+ ", d = "+d+"s, c = "+nasobok+" * λavg");
+title("\color{blue}Prevádzka\color{black}, d = "+d+"s, Plost = "+Plost*100+"%");
 xlabel("Čas");
 ylabel("Počet paketov");
-legend('Bernoulli','klzavý priemer','kapacita','Location','northwest');
-xlim([0 pocet_generovanych]);
+legend('Prevádzka','klzavý priemer','kapacita','Location','northwest');
+xlim([0 dlzkaPcapu-1]);
 
 subplot(subcislo,1,2);
 plot(q);
@@ -88,15 +78,14 @@ title("\color{blue}Buffer");
 xlabel("Čas");
 ylabel("Počet paketov");
 legend('Buffer','veľkost buffra','Location','northwest')
-xlim([0 pocet_generovanych]);
+xlim([0 dlzkaPcapu]);
 
 subplot(subcislo,1,3);
 plot(zahodene);
 title("\color{blue}Zahodené pakety\color{black}, počet = "+sum(zahodene));
 xlabel("Čas");
 ylabel("Počet paketov");
-xlim([0 pocet_generovanych]);
-
+xlim([0 dlzkaPcapu]);
 
 
 fprintf("zahodene - "+typ_zahodenia+": %f\n",sum(zahodene));
@@ -203,18 +192,33 @@ function [pravd_min_th] = zisti_pravd_zahodenia_linear(buffer,pravd_min_th,typ_z
     end
 end
 
-function [c,n] = vypocitaj_bernoulli_kapacitu(Y,d,pravd_na_1,max_hodnota,nasobok)
+function [c,n] = vypocitaj_kapacitu(data_cw,Y,d)
+    %vypocet pravdepodobnosti Pk
+    max_number = max(data_cw);
+    for k=0:max_number
+        n = 0;
+        n = numel(find(data_cw==k));
+        pdf(k+1) = n/length(data_cw);
+    end
+    sumpdf = sum(pdf);
+    dlzkaPdf = length(pdf);
 
-c = max_hodnota* pravd_na_1 * nasobok;
-n = d*c;
-
-% % vypocet thety
-%  theta = log((exp(Y/max_hodnota) - 1 + pravd_na_1)/pravd_na_1);
-% 
-% % nastavenie kapacity a n
-%  c = 1/theta * log(1 - pravd_na_1 + pravd_na_1*exp(theta));
-%  n = d*c;
-%  c = c * 10;
+    % vypocet thety
+    theta = 0.001;
+    
+    while true
+        for k=1:dlzkaPdf
+            pom(k) = (exp(theta*(k-1)))*pdf(k);
+        end
+        lambda_theta = log(sum(pom));
+        if lambda_theta >= Y
+            break
+        end
+        theta = theta + 0.001;
+    end
+    % nastavenie kapacity a n
+    c = lambda_theta/theta;
+    n = d*c;
 end
 
 
