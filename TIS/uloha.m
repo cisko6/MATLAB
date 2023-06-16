@@ -1,5 +1,4 @@
 
-compute_window = 20;
 max_hist_cislo = 0.001;
 
 nasobok_koef = 20;
@@ -15,7 +14,7 @@ nasobok_spic = 5;
 % num_bins_UDP = 12;
 
 
-
+compute_window = 300;
 %M = readtable("C:\Users\patri\Downloads\tok\01 tsharkPONDELOK4.csv");%full csv
 %M = readtable("C:\Users\patri\Downloads\miniTok\01 tsharkPONDELOK4_0.csv");%minitok
 %M = readtable("C:\Users\patri\Downloads\miniShark\01 tsharkPONDELOK4_0_0.csv");%minitok ntbk
@@ -205,6 +204,23 @@ m_TCP_kB = zeros(1,dlzka_csv);s_TCP_kB = zeros(1,dlzka_csv);V_TCP_kB = zeros(1,d
 m_UDP_kB = zeros(1,dlzka_csv);s_UDP_kB = zeros(1,dlzka_csv);V_UDP_kB = zeros(1,dlzka_csv);K_UDP_kB = zeros(1,dlzka_csv);Skw_UDP_kB = zeros(1,dlzka_csv);
 
 % vypocty
+% for i=1:index-compute_window+1
+%     data_pom = data(i:compute_window+i-1);
+%     data_pom2 = data_kB(i:compute_window+i-1);
+%     data_pom3 = TCP(i:compute_window+i-1);
+%     data_pom4 = UDP(i:compute_window+i-1);
+%     data_pom5 = data_kB_TCP(i:compute_window+i-1);
+%     data_pom6 = data_kB_UDP(i:compute_window+i-1);
+% 
+%     [m,s,V,K,Skw] = vypocitaj_statisticke_parametre(data_pom,compute_window,i,nasobok_koef,nasobok_spic,m,s,V,K,Skw);
+%     [m_kB,s_kB,V_kB,K_kB,Skw_kB] = vypocitaj_statisticke_parametre(data_pom2,compute_window,i,nasobok_koef,nasobok_spic,m_kB,s_kB,V_kB,K_kB,Skw_kB);
+%     [m_TCP,s_TCP,V_TCP,K_TCP,Skw_TCP] = vypocitaj_statisticke_parametre(data_pom3,compute_window,i,nasobok_koef,nasobok_spic,m_TCP,s_TCP,V_TCP,K_TCP,Skw_TCP);
+%     [m_UDP,s_UDP,V_UDP,K_UDP,Skw_UDP] = vypocitaj_statisticke_parametre(data_pom4,compute_window,i,nasobok_koef,nasobok_spic,m_UDP,s_UDP,V_UDP,K_UDP,Skw_UDP);
+%     [m_TCP_kB,s_TCP_kB,V_TCP_kB,K_TCP_kB,Skw_TCP_kB] = vypocitaj_statisticke_parametre(data_pom5,compute_window,i,nasobok_koef,nasobok_spic,m_TCP_kB,s_TCP_kB,V_TCP_kB,K_TCP_kB,Skw_TCP_kB);
+%     [m_UDP_kB,s_UDP_kB,V_UDP_kB,K_UDP_kB,Skw_UDP_kB] = vypocitaj_statisticke_parametre(data_pom6,compute_window,i,nasobok_koef,nasobok_spic,m_UDP_kB,s_UDP_kB,V_UDP_kB,K_UDP_kB,Skw_UDP_kB);
+% end
+
+
 for i=1:index-compute_window+1
     data_pom = data(i:compute_window+i-1);
     data_pom2 = data_kB(i:compute_window+i-1);
@@ -213,13 +229,51 @@ for i=1:index-compute_window+1
     data_pom5 = data_kB_TCP(i:compute_window+i-1);
     data_pom6 = data_kB_UDP(i:compute_window+i-1);
 
-    [m,s,V,K,Skw] = vypocitaj_statisticke_parametre(data_pom,compute_window,i,nasobok_koef,nasobok_spic,m,s,V,K,Skw);
-    [m_kB,s_kB,V_kB,K_kB,Skw_kB] = vypocitaj_statisticke_parametre(data_pom2,compute_window,i,nasobok_koef,nasobok_spic,m_kB,s_kB,V_kB,K_kB,Skw_kB);
-    [m_TCP,s_TCP,V_TCP,K_TCP,Skw_TCP] = vypocitaj_statisticke_parametre(data_pom3,compute_window,i,nasobok_koef,nasobok_spic,m_TCP,s_TCP,V_TCP,K_TCP,Skw_TCP);
-    [m_UDP,s_UDP,V_UDP,K_UDP,Skw_UDP] = vypocitaj_statisticke_parametre(data_pom4,compute_window,i,nasobok_koef,nasobok_spic,m_UDP,s_UDP,V_UDP,K_UDP,Skw_UDP);
-    [m_TCP_kB,s_TCP_kB,V_TCP_kB,K_TCP_kB,Skw_TCP_kB] = vypocitaj_statisticke_parametre(data_pom5,compute_window,i,nasobok_koef,nasobok_spic,m_TCP_kB,s_TCP_kB,V_TCP_kB,K_TCP_kB,Skw_TCP_kB);
-    [m_UDP_kB,s_UDP_kB,V_UDP_kB,K_UDP_kB,Skw_UDP_kB] = vypocitaj_statisticke_parametre(data_pom6,compute_window,i,nasobok_koef,nasobok_spic,m_UDP_kB,s_UDP_kB,V_UDP_kB,K_UDP_kB,Skw_UDP_kB);
+    m(i+compute_window-1) = mean(data_pom); % klzavy priemer
+    s(i+compute_window-1)  = sqrt(cov(data_pom)); % smerodajna odchylka
+    V(i+compute_window-1) = nasobok_koef*sqrt(cov(data_pom))/mean(data_pom); % koeficient variabilnosti
+    K(i+compute_window-1)  = kurtosis(data_pom); % sikmost
+    Skw(i+compute_window-1) = nasobok_spic*max(skewness(data_pom),0); % spicatost
+
+    m_kB(i+compute_window-1) = mean(data_pom2); % klzavy priemer
+    s_kB(i+compute_window-1)  = sqrt(cov(data_pom2)); % smerodajna odchylka
+    V_kB(i+compute_window-1) = nasobok_koef*sqrt(cov(data_pom2))/mean(data_pom2); % koeficient variabilnosti
+    K_kB(i+compute_window-1)  = kurtosis(data_pom2); % sikmost
+    Skw_kB(i+compute_window-1) = nasobok_spic*max(skewness(data_pom2),0); % spicatost
+
+    m_TCP(i+compute_window-1) = mean(data_pom3); % klzavy priemer
+    s_TCP(i+compute_window-1)  = sqrt(cov(data_pom3)); % smerodajna odchylka
+    V_TCP(i+compute_window-1) = nasobok_koef*sqrt(cov(data_pom3))/mean(data_pom3); % koeficient variabilnosti
+    K_TCP(i+compute_window-1)  = kurtosis(data_pom3); % sikmost
+    Skw_TCP(i+compute_window-1) = nasobok_spic*max(skewness(data_pom3),0); % spicatost
+
+    m_UDP(i+compute_window-1) = mean(data_pom4); % klzavy priemer
+    s_UDP(i+compute_window-1)  = sqrt(cov(data_pom4)); % smerodajna odchylka
+    V_UDP(i+compute_window-1) = nasobok_koef*sqrt(cov(data_pom4))/mean(data_pom4); % koeficient variabilnosti
+    K_UDP(i+compute_window-1)  = kurtosis(data_pom4); % sikmost
+    Skw_UDP(i+compute_window-1) = nasobok_spic*max(skewness(data_pom4),0); % spicatost
+
+    m_TCP_kB(i+compute_window-1) = mean(data_pom5); % klzavy priemer
+    s_TCP_kB(i+compute_window-1)  = sqrt(cov(data_pom5)); % smerodajna odchylka
+    V_TCP_kB(i+compute_window-1) = nasobok_koef*sqrt(cov(data_pom5))/mean(data_pom5); % koeficient variabilnosti
+    K_TCP_kB(i+compute_window-1)  = kurtosis(data_pom5); % sikmost
+    Skw_TCP_kB(i+compute_window-1) = nasobok_spic*max(skewness(data_pom5),0); % spicatost
+
+    m_UDP_kB(i+compute_window-1) = mean(data_pom6); % klzavy priemer
+    s_UDP_kB(i+compute_window-1)  = sqrt(cov(data_pom6)); % smerodajna odchylka
+    V_UDP_kB(i+compute_window-1) = nasobok_koef*sqrt(cov(data_pom6))/mean(data_pom6); % koeficient variabilnosti
+    K_UDP_kB(i+compute_window-1)  = kurtosis(data_pom6); % sikmost
+    Skw_UDP_kB(i+compute_window-1) = nasobok_spic*max(skewness(data_pom6),0); % spicatost
 end
+
+
+
+m = m(1:index);s = s(1:index);V = V(1:index);K = K(1:index);Skw = Skw(1:index);
+m_kB = m_kB(1:index);s_kB = s_kB(1:index);V_kB = V_kB(1:index);K_kB = K_kB(1:index);Skw_kB = Skw_kB(1:index);
+m_TCP = m_TCP(1:index);s_TCP = s_TCP(1:index);V_TCP = V_TCP(1:index);K_TCP = K_TCP(1:index);Skw_TCP = Skw_TCP(1:index);
+m_UDP = m_UDP(1:index);s_UDP = s_UDP(1:index);V_UDP = V_UDP(1:index);K_UDP = K_UDP(1:index);Skw_UDP = Skw_UDP(1:index);
+m_TCP_kB = m_TCP_kB(1:index);s_TCP_kB = s_TCP_kB(1:index);V_TCP_kB = V_TCP_kB(1:index);K_TCP_kB = K_TCP_kB(1:index);Skw_TCP_kB = Skw_TCP_kB(1:index);
+m_UDP_kB = m_UDP_kB(1:index);s_UDP_kB = s_UDP_kB(1:index);V_UDP_kB = V_UDP_kB(1:index);K_UDP_kB = K_UDP_kB(1:index);Skw_UDP_kB = Skw_UDP_kB(1:index);
 
 %%%%%%%%%%%%%%%%%%%%%%%% MODELOVANIE EXP %%%%%%%%%%%%%%%%%%%%%%%%
 % ET_exp = mean(medzery);
@@ -245,7 +299,7 @@ data_UDP = UDP(1:index);
 data_UDP_medzery = medzery_UDP(1:index_medzery_UDP);
 data_plot_UDP_kB = data_kB_UDP(1:index);
 
-VYPISY
+%VYPISY
 subcislo = 5;
 
 subplot(subcislo,1,1);
@@ -274,8 +328,14 @@ legend('koef. var.','sikmost','spicatost','Location','northwest');
 title("\color{black}sikmost, \color{magenta}"+nasobok_spic+"x spicatost ,\color{cyan} "+nasobok_koef+"xkoef. var.");
 
 subplot(subcislo,1,3);
-histogram(data_plot, 'Normalization', 'probability','NumBins',num_bins_pocty);
-histogram(data_plot, 'Normalization', 'probability');
+%histogram(data_plot, 'Normalization', 'probability','NumBins',num_bins_pocty);
+pocty_hist = histogram(data_plot, 'Normalization', 'probability');
+pocty_hist_values = pocty_hist.Values;
+pocty_hist_binedges = pocty_hist.BinEdges;
+pocty_hist_bincounts = pocty_hist.BinCounts;
+
+
+
 xlabel("Počet paketov rozdelených do tried");
 ylabel("Pravdepodobnosti");
 title('histogram toku');
@@ -288,15 +348,34 @@ ylabel("Čas");
 title('medzery');
 
 subplot(subcislo,1,5);
-histogram(medzery, 'Normalization', 'probability','NumBins',num_bins_pocty_medzery);
-histogram(medzery, 'Normalization', 'probability');
+%histogram(medzery, 'Normalization', 'probability','NumBins',num_bins_pocty_medzery);
+medzery_hist = histogram(medzery, 'Normalization', 'probability');
+medzery_hist_values = medzery_hist.Values;
+medzery_hist_binedges = medzery_hist.BinEdges;
+medzery_hist_bincounts = medzery_hist.BinCounts;
 xlim([0 max_hist_cislo]);
 xlabel("Čas rozdelený do tried");
 ylabel("Pravdepodobnosti");
 title('histogram medzier');
 
 figure
-%%%%%%%%%%%% VELKOSTI INFORMACIE kB %%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%% VELKOSTI INFORMACIE kB %%%%%%%%%%%% %%%%%%%%%%%%%%///////////////////////////////////////////////////////
 subcislo2 = 3;
 
 subplot(subcislo2,1,1);
@@ -325,14 +404,31 @@ legend('koef. var.','sikmost','spicatost','Location','northwest');
 title("\color{black}sikmost, \color{magenta}"+nasobok_spic+"x spicatost ,\color{cyan} "+nasobok_koef+"xkoef. var.");
 
 subplot(subcislo2,1,3);
-histogram(data_plot_kB, 'Normalization', 'probability','NumBins',num_bins_kB);
-histogram(data_plot_kB, 'Normalization', 'probability');
+%histogram(data_plot_kB, 'Normalization', 'probability','NumBins',num_bins_kB);
+kB_hist = histogram(data_plot_kB, 'Normalization', 'probability');
+kB_hist_values = kB_hist.Values;
+kB_hist_binedges = kB_hist.BinEdges;
+kB_hist_bincounts = kB_hist.BinCounts;
 xlabel("Veľkosť paketov rozdelených do tried");
 ylabel("Pravdepodobnosti");
 title("histogram kB");
 
 figure
-%%%%%%%%%%%%%%%%% TCP %%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%% TCP %%%%%%%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%/////////////////////////////////////////////////////////
 subcislo3 = 5;
 
 subplot(subcislo3,1,1);
@@ -360,8 +456,11 @@ legend('koef. var.','sikmost','spicatost','Location','northwest');
 title("\color{black}sikmost, \color{magenta}"+nasobok_spic+"x spicatost ,\color{cyan} "+nasobok_koef+"xkoef. var.");
 
 subplot(subcislo3,1,3);
-histogram(data_TCP, 'Normalization', 'probability','NumBins',num_bins_TCP);
-histogram(data_TCP, 'Normalization', 'probability');
+%histogram(data_TCP, 'Normalization', 'probability','NumBins',num_bins_TCP);
+TCP_hist = histogram(data_TCP, 'Normalization', 'probability');
+TCP_hist_values = TCP_hist.Values;
+TCP_hist_binedges = TCP_hist.BinEdges;
+TCP_hist_bincounts = TCP_hist.BinCounts;
 xlabel("Počet paketov rozdelených do tried");
 ylabel("Pravdepodobnosti");
 title("histogram TCP");
@@ -374,8 +473,11 @@ ylabel("Čas");
 title('medzery');
 
 subplot(subcislo3,1,5);
-histogram(data_TCP_medzery, 'Normalization', 'probability','NumBins',num_bins_TCP_medzery);
-histogram(data_TCP_medzery, 'Normalization', 'probability');
+%histogram(data_TCP_medzery, 'Normalization', 'probability','NumBins',num_bins_TCP_medzery);
+TCP_medzery_hist = histogram(data_TCP_medzery, 'Normalization', 'probability');
+TCP_medzery_hist_values = TCP_medzery_hist.Values;
+TCP_medzery_hist_binedges = TCP_medzery_hist.BinEdges;
+TCP_medzery_hist_bincounts = TCP_medzery_hist.BinCounts;
 xlim([0 max_hist_cislo]);
 xlabel("Čas rozdelený do tried");
 ylabel("Pravdepodobnosti");
@@ -383,7 +485,7 @@ title('histogram medzier');
 
 
 figure
-%%%%%%%%%%%%%%%%% UDP %%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% UDP %%%%%%%%%%%%%%%%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 subplot(subcislo3,1,1);
 plot(data_UDP,'blue');
@@ -410,8 +512,11 @@ legend('koef. var.','sikmost','spicatost','Location','northwest');
 title("\color{black}sikmost, \color{magenta}"+nasobok_spic+"x spicatost ,\color{cyan} "+nasobok_koef+"xkoef. var.");
 
 subplot(subcislo3,1,3);
-histogram(data_UDP, 'Normalization', 'probability','NumBins',num_bins_UDP);
-histogram(data_UDP, 'Normalization', 'probability');
+%histogram(data_UDP, 'Normalization', 'probability','NumBins',num_bins_UDP);
+UDP_hist = histogram(data_UDP, 'Normalization', 'probability');
+UDP_hist_values = UDP_hist.Values;
+UDP_hist_binedges = UDP_hist.BinEdges;
+UDP_hist_bincounts = UDP_hist.BinCounts;
 xlabel("Počet paketov rozdelených do tried");
 ylabel("Pravdepodobnosti");
 title("histogram UDP");
@@ -424,15 +529,29 @@ ylabel("Čas");
 title('medzery');
 
 subplot(subcislo3,1,5);
-histogram(data_UDP_medzery, 'Normalization', 'probability','NumBins',num_bins_UDP_medzery);
-histogram(data_UDP_medzery, 'Normalization', 'probability','NumBins',5000);
-histogram(data_UDP_medzery, 'Normalization', 'probability');
+%histogram(data_UDP_medzery, 'Normalization', 'probability','NumBins',num_bins_UDP_medzery);
+%histogram(data_UDP_medzery, 'Normalization', 'probability','NumBins',5000);
+UDP_medzery_hist = histogram(data_UDP_medzery, 'Normalization', 'probability');
+UDP_medzery_hist_values = UDP_medzery_hist.Values;
+UDP_medzery_hist_binedges = UDP_medzery_hist.BinEdges;
+UDP_medzery_hist_bincounts = UDP_medzery_hist.BinCounts;
 xlim([0 max_hist_cislo]);
 xlabel("Čas rozdelený do tried");
 ylabel("Pravdepodobnosti");
 title('histogram medzier');
 
 figure
+
+
+
+
+
+
+
+
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% VELKOSTI INFORMACII TCP %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -465,7 +584,10 @@ legend('koef. var.','sikmost','spicatost','Location','northwest');
 title("\color{black}sikmost, \color{magenta}"+nasobok_spic+"x spicatost ,\color{cyan} "+nasobok_koef+"xkoef. var.");
 
 subplot(subcislo4,1,3);
-histogram(data_plot_TCP_kB, 'Normalization', 'probability','NumBins',20);
+TCP_kB_hist = histogram(data_plot_TCP_kB, 'Normalization', 'probability','NumBins',20);
+TCP_kB_hist_values = TCP_kB_hist.Values;
+TCP_kB_hist_binedges = TCP_kB_hist.BinEdges;
+TCP_kB_hist_bincounts = TCP_kB_hist.BinCounts;
 xlabel("Veľkosti paketov rozdelených do tried");
 ylabel("Pravdepodobnosti");
 title('histogram veľkosti informácií TCP');
@@ -476,6 +598,7 @@ figure
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% VELKOSTI INFORMACII UDP %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 subplot(subcislo4,1,1);
+
 plot(data_plot_UDP_kB);
 hold on
 plot(m_UDP_kB,'red');
@@ -502,19 +625,139 @@ legend('koef. var.','sikmost','spicatost','Location','northwest');
 title("\color{black}sikmost, \color{magenta}"+nasobok_spic+"x spicatost ,\color{cyan} "+nasobok_koef+"xkoef. var.");
 
 subplot(subcislo4,1,3);
-histogram(data_plot_UDP_kB, 'Normalization', 'probability', 'NumBins',50);
+UDP_kB_hist = histogram(data_plot_UDP_kB, 'Normalization', 'probability', 'NumBins',50);
+UDP_kB_hist_values = UDP_kB_hist.Values;
+UDP_kB_hist_binedges = UDP_kB_hist.BinEdges;
+UDP_kB_hist_bincounts = UDP_kB_hist.BinCounts;
 xlabel("Veľkosti paketov rozdelených do tried");
 ylabel("Pravdepodobnosti");
 title('histogram veľkosti informácií UDP');
 
 
-function [m,s,V,K,Skw] = vypocitaj_statisticke_parametre(data_pom,compute_window,i,nasobok_koef,nasobok_spic,m,s,V,K,Skw)
-    m(i+compute_window-1) = mean(data_pom); % klzavy priemer
-    s(i+compute_window-1)  = sqrt(cov(data_pom)); % smerodajna odchylka
-    V(i+compute_window-1) = nasobok_koef*sqrt(cov(data_pom))/mean(data_pom); % koeficient variabilnosti
-    K(i+compute_window-1)  = kurtosis(data_pom); % sikmost
-    Skw(i+compute_window-1) = nasobok_spic*max(skewness(data_pom),0); % spicatost
-end
+%%%%%%%%%%%%%%%%%%  PRVA FIGURE %%%%%%%%%%%%%%%%
+% 1-2
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\1. figure - pocty\1-2. počty\pocty','data_plot');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\1. figure - pocty\1-2. počty\priemer','m');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\1. figure - pocty\1-2. počty\smer_od','s');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\1. figure - pocty\1-2. počty\koef_var','V');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\1. figure - pocty\1-2. počty\sikmost','K');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\1. figure - pocty\1-2. počty\spicatost','Skw');
+
+% 3
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\1. figure - pocty\3. histogram toku\hist_values','pocty_hist_values');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\1. figure - pocty\3. histogram toku\hist_binedges','pocty_hist_binedges');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\1. figure - pocty\3. histogram toku\hist_bincounts','pocty_hist_bincounts');
+
+% 4
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\1. figure - pocty\4. medzery\medzery','medzery');
+
+% 5
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\1. figure - pocty\5. histogram medzier\values','medzery_hist_values');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\1. figure - pocty\5. histogram medzier\binedges','medzery_hist_binedges');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\1. figure - pocty\5. histogram medzier\bincounts','medzery_hist_bincounts');
+
+%%%%%%%%%%%%%%%%%%  DRUHA FIGURE %%%%%%%%%%%%%%%%
+% 1-2
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\2. figure - kB\1-2. kB\data_plot_kB','data_plot_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\2. figure - kB\1-2. kB\priemer','m_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\2. figure - kB\1-2. kB\smer_od','s_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\2. figure - kB\1-2. kB\koef_var','V_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\2. figure - kB\1-2. kB\sikmost','K_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\2. figure - kB\1-2. kB\spicatost','Skw_kB');
+
+% 3
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\2. figure - kB\3. histogram kB\hist_values','kB_hist_values');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\2. figure - kB\3. histogram kB\hist_binedges','kB_hist_binedges');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\2. figure - kB\3. histogram kB\hist_bincounts','kB_hist_bincounts');
+
+%%%%%%%%%%%%%%%%%%  TRETIA FIGURE %%%%%%%%%%%%%%%%
+% 1-2
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\3. figure - TCP pocty\1-2. pocty\data_TCP','data_TCP');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\3. figure - TCP pocty\1-2. pocty\priemer','m_TCP');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\3. figure - TCP pocty\1-2. pocty\smer_od','s_TCP');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\3. figure - TCP pocty\1-2. pocty\koef_var','V_TCP');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\3. figure - TCP pocty\1-2. pocty\sikmost','K_TCP');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\3. figure - TCP pocty\1-2. pocty\spicatost','Skw_TCP');
+
+% 3
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\3. figure - TCP pocty\3. histogram TCP\hist_values','TCP_hist_values');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\3. figure - TCP pocty\3. histogram TCP\hist_binedges','TCP_hist_binedges');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\3. figure - TCP pocty\3. histogram TCP\hist_bincounts','TCP_hist_bincounts');
+
+% 4
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\3. figure - TCP pocty\4. medzery\medzery_TCP','data_TCP_medzery');
+
+% 5
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\3. figure - TCP pocty\5. histogram medzier\hist_values','TCP_medzery_hist_values');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\3. figure - TCP pocty\5. histogram medzier\hist_binedges','TCP_medzery_hist_binedges');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\3. figure - TCP pocty\5. histogram medzier\hist_bincounts','TCP_medzery_hist_bincounts');
+
+%%%%%%%%%%%%%%%%%%  STVRTA FIGURE %%%%%%%%%%%%%%%%
+
+% 1-2
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\4. figure - UDP pocty\1-2. pocty\data_UDP','data_UDP');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\4. figure - UDP pocty\1-2. pocty\priemer','m_UDP');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\4. figure - UDP pocty\1-2. pocty\smer_od','s_UDP');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\4. figure - UDP pocty\1-2. pocty\koef_var','V_UDP');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\4. figure - UDP pocty\1-2. pocty\sikmost','K_UDP');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\4. figure - UDP pocty\1-2. pocty\spicatost','Skw_UDP');
+
+% 3
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\4. figure - UDP pocty\3. histogram\hist_values','UDP_hist_values');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\4. figure - UDP pocty\3. histogram\hist_binedges','UDP_hist_binedges');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\4. figure - UDP pocty\3. histogram\hist_bincounts','UDP_hist_bincounts');
+
+% 4
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\4. figure - UDP pocty\4. medzery\medzery_UDP','data_UDP_medzery');
+
+% 5
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\4. figure - UDP pocty\5. histogram medzier\hist_values','UDP_medzery_hist_values');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\4. figure - UDP pocty\5. histogram medzier\hist_binedges','UDP_medzery_hist_binedges');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\4. figure - UDP pocty\5. histogram medzier\hist_bincounts','UDP_medzery_hist_bincounts');
+
+%%%%%%%%%%%%%%%%%%  PIATA FIGURE %%%%%%%%%%%%%%%%
+% 1-2
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\5. figure - TCP kB\1-2. kB\kB','data_plot_TCP_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\5. figure - TCP kB\1-2. kB\priemer','m_TCP_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\5. figure - TCP kB\1-2. kB\smer_od','s_TCP_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\5. figure - TCP kB\1-2. kB\koef_var','V_TCP_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\5. figure - TCP kB\1-2. kB\sikmost','K_TCP_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\5. figure - TCP kB\1-2. kB\spicatost','Skw_TCP_kB');
+
+% 3
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\5. figure - TCP kB\3. histogram\hist_values','TCP_kB_hist_values');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\5. figure - TCP kB\3. histogram\hist_binedges','TCP_kB_hist_binedges');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\5. figure - TCP kB\3. histogram\hist_bincounts','TCP_kB_hist_bincounts');
+
+%%%%%%%%%%%%%%%%%%  SIESTA FIGURE %%%%%%%%%%%%%%%%
+% 1-2
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\6. figure - UDP kB\1-2. kB\kB','data_plot_UDP_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\6. figure - UDP kB\1-2. kB\priemer','m_UDP_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\6. figure - UDP kB\1-2. kB\smer_od','s_UDP_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\6. figure - UDP kB\1-2. kB\koef_var','V_UDP_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\6. figure - UDP kB\1-2. kB\sikmost','K_UDP_kB');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\6. figure - UDP kB\1-2. kB\spicatost','Skw_UDP_kB');
+
+% 3
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\6. figure - UDP kB\3. hist\hist_values','UDP_kB_hist_values');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\6. figure - UDP kB\3. hist\hist_binedges','UDP_kB_hist_binedges');
+save('C:\Users\patri\OneDrive\Pracovná plocha\Uloha_doku\cely_tok\6. figure - UDP kB\3. hist\hist_bincounts','UDP_kB_hist_bincounts');
+
+
+
+
+% function [m,s,V,K,Skw] = vypocitaj_statisticke_parametre(data_pom,compute_window,i,nasobok_koef,nasobok_spic,m,s,V,K,Skw)
+%     m(i+compute_window-1) = mean(data_pom); % klzavy priemer
+%     s(i+compute_window-1)  = sqrt(cov(data_pom)); % smerodajna odchylka
+%     V(i+compute_window-1) = nasobok_koef*sqrt(cov(data_pom))/mean(data_pom); % koeficient variabilnosti
+%     K(i+compute_window-1)  = kurtosis(data_pom); % sikmost
+%     Skw(i+compute_window-1) = nasobok_spic*max(skewness(data_pom),0); % spicatost
+% end
+
+
+
+
+
 
 
 
