@@ -4,7 +4,10 @@ clear
 %load("C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_5_v1.mat"); % attack 5 - prvých 19k je stacionarnych
 %data = a(1:15000);
 load("C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_5_v2.mat");
-data = a(1:20000);
+begin_flow = 1;
+end_flow = 20000;
+data = a(begin_flow:end_flow);
+
 
 % zistenie Ppeak
 maxValue = max(data);
@@ -54,15 +57,63 @@ for i=1:(pocet_generovanych/sample_size)-1
     sampled_data(i+1) = pom_sum;
 end
 
+% vypocitanie kapacity
+c_mmrp = mmrp_calc_c(alfa,beta,sample_size);
+
+d = 100;
+Plost = 0.1;
+Y = (log(Plost))/(-d);
+
+c_ipflow = ipflow_calc_c(data,Y);
 
 
-plot(data);
+% VYPISY
+subplot(3,1,1);
+plot(data, 'b');
 hold on;
-%plot(length(data) + (1:length(sampled_data)), sampled_data);
-plot(length(data) + 1:length(data) + length(sampled_data), sampled_data);
+plot(length(data) + (1:length(sampled_data)), sampled_data,'r');
+legend('flow','generated data')
+title("\color{blue}flow \color{black}/ \color{red}generated data");
 
+subplot(3,1,2);
+histogram(data)
+title("\color{blue}histogram flow");
 
+subplot(3,1,3);
+histogram(sampled_data)
+title("\color{red}histogram generated data");
 
+function [c] = mmrp_calc_c(alfa,beta,sample_size)
+    pi1 = beta / (alfa+beta);
+    c = sample_size * pi1;
+end
+
+function [c] = ipflow_calc_c(data_cw,Y)
+    max_number = max(data_cw);
+    for k=0:max_number
+        n = 0;
+        n = numel(find(data_cw==k));
+        pdf(k+1) = n/length(data_cw);
+    end
+    sumpdf = sum(pdf);
+    dlzkaPdf = length(pdf);
+
+    % vypocet thety
+    theta = 0.001;
+    
+    while true
+        for k=1:dlzkaPdf
+            pom(k) = (exp(theta*(k-1)))*pdf(k);
+        end
+        lambda_theta = log(sum(pom));
+        if lambda_theta >= Y
+            break
+        end
+        theta = theta + 0.001;
+    end
+
+    c = lambda_theta/theta;
+end
 
 
 
