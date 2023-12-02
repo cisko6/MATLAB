@@ -76,11 +76,14 @@ legend('flow','generated data')
 title("\color{blue}flow \color{black}/ \color{red}generated data");
 
 subplot(3,1,2);
-histogram(data)
+hist_data = histogram(data);
+disp(hist_data.NumBins)
+xxx = hist_data.Values;
 title("\color{blue}histogram flow");
 
 subplot(3,1,3);
-histogram(sampled_data)
+hist_generated = histogram(sampled_data,'NumBins',hist_data.NumBins);
+yyy = hist_generated.Values;
 title("\color{red}histogram generated data");
 
 function [c] = mmrp_calc_c(alfa,beta,sample_size)
