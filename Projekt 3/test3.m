@@ -1,39 +1,56 @@
 clc
 clear
 
-% Define the data arrays
-data1 = [1 2 2 3 3 4];
-data2 = [2 2 2 3 4 4];
+data1 = [8 29 70 117 212 304 319 279 257 227 154 112 70 28 22 7 4 2 1];
+data2 = [11 45 69 95 159 203 228 221 218 242 214 161 136 93 62 35 15 13 1];
 
-passedCount = 0;
+data1 = [5	58	262	633	1252	2039	2774	3121	3028	2667	2233	1609	1101	669	392	206	88	44	28	9	4];
+data2 = [94	315	600	1051	1511	1884	2320	2479	2494	2295	1981	1634	1282	914	608	398	201	91	45	20	4];
 
-for i = 1:6
-    % Combine the data into a contingency table
-    data = [data1(randperm(size(data1, 1))), data2(randperm(size(data2, 1)))];
+%data1 = [1 2 2 3 3 4];
+%data2 = [2 2 2 3 4 4];
 
-    % Calculate expected frequencies
-    expectedFrequencies = mean(data, 2);
+% Calculate the total observations for each dataset
+total1 = sum(data1);
+total2 = sum(data2);
 
-    % Compute chi-square statistic
-    chi2Statistic = sum((data - expectedFrequencies).^2 ./ expectedFrequencies);
+% Calculate the proportions for each category
+proportions1 = histcounts(data1, 1:max(data1)+1) / total1;
+proportions2 = histcounts(data2, 1:max(data2)+1) / total2;
 
-    % Calculate degrees of freedom
-    degreesOfFreedom = (size(data, 1) - 1) * (size(data, 2) - 1);
+% Calculate the expected frequencies for each dataset
+expected1 = total1 * proportions1;
+expected2 = total2 * proportions2;
 
-    % Calculate p-value
-    pValue = chi2cdf(chi2Statistic, degreesOfFreedom);
+% Add a small constant to avoid division by zero
+epsilon = 0.01;
+expected1 = expected1 + epsilon;
+expected2 = expected2 + epsilon;
 
-    % Count the number of times the p-value is less than 0.05
-    if pValue <= 0.05
-        passedCount = passedCount + 1;
-    end
-    fprintf('p-value = %f \n', pValue);
-end
+% Calculate the chi-square statistic
+chi2statistic = sum((histcounts(data1, 1:max(data1)+1) - expected1).^2 ./ expected1) + ...
+                sum((histcounts(data2, 1:max(data2)+1) - expected2).^2 ./ expected2);
 
+% Number of categories in each dataset
+num_categories1 = numel(unique(data1));
+num_categories2 = numel(unique(data2));
 
-% Check if more than half of the p-values are less than 0.05
-if passedCount > 3
-    fprintf('PASSED\n');
+% Calculate the degrees of freedom
+df = (num_categories1 - 1) + (num_categories2 - 1);
+
+% Set Significance Level
+alpha = 0.05;
+
+% Look up Critical Value from Chi-Square Distribution Table
+critical_value = chi2inv(1 - alpha, df);
+
+% Compare with Calculated Chi-Square Statistic
+if chi2statistic > critical_value
+    fprintf('Reject the null hypothesis.\n chi2statistic: %f \n critical_value: %f', chi2statistic, critical_value);
 else
-    fprintf('NOT PASSED\n');
+    fprintf('Fail to reject the null hypothesis.\n chi2statistic: %f \n critical_value: %f', chi2statistic, critical_value);
 end
+
+
+
+

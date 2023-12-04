@@ -3,7 +3,8 @@ clear
 
 %load("C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_5_v1.mat"); % attack 5 - prvých 19k je stacionarnych
 %data = a(1:15000);
-load("C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_5_v2.mat");
+load("C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_5_v2.mat"); % (1-20000)
+%load("C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_1.mat"); % 450 830
 begin_flow = 1;
 end_flow = 20000;
 data = a(begin_flow:end_flow);
@@ -23,10 +24,10 @@ beta = (lambda_avg * alfa) / (maxValue - lambda_avg);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%% ON OFF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-pocet_generovanych = 400000;
+sample_size = maxValue;
+pocet_generovanych = (end_flow - begin_flow) * sample_size;%400000;
 stav = 1;
 
-sample_size = maxValue;
 
 for i=1:pocet_generovanych
     if stav == 1
@@ -47,7 +48,7 @@ for i=1:pocet_generovanych
 end
 
 % samplovanie dat
-sampled_data = zeros(1,pocet_generovanych/sample_size);
+sampled_data = zeros(1,ceil(pocet_generovanych/sample_size));
 
 pom_sum = sum(generated_data(1:sample_size));
 sampled_data(1) = pom_sum;
@@ -66,9 +67,9 @@ Y = (log(Plost))/(-d);
 
 c_ipflow = ipflow_calc_c(data,Y);
 
-
 % VYPISY
 subplot(3,1,1);
+cla
 plot(data, 'b');
 hold on;
 plot(length(data) + (1:length(sampled_data)), sampled_data,'r');
@@ -117,9 +118,3 @@ function [c] = ipflow_calc_c(data_cw,Y)
 
     c = lambda_theta/theta;
 end
-
-
-
-
-
-

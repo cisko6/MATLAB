@@ -5,7 +5,11 @@ clear
 
 % Define the data arrays
 data1 = [1 2 2 3 3 4];
-data2 = [2 2 2 3 4 4];
+data2 = [1 2 2 3 3 4];
+%data2 = [2 2 2 3 4 4];
+
+%data1 = [8	29	70	117	212	304	319	279	257	227	154	112	70	28	22	7	4	2	1];
+%data2 = [11	45	69	95	159	203	228	221	218	242	214	161	136	93	62	35	15	13	1];
 
 %data1 = 1:50;
 %data2 = data1 + randi([-50, 50], size(data1));
@@ -23,6 +27,9 @@ chi2Statistic = sum((data - expectedFrequencies).^2 ./ expectedFrequencies);
 
 % Calculate degrees of freedom
 degreesOfFreedom = (size(data, 1) - 1) * (size(data, 2) - 1);
+
+xxxx = size(data,1);
+yyyy = size(data,2);
 
 % Calculate p-value
 pValue = chi2cdf(chi2Statistic, degreesOfFreedom);
