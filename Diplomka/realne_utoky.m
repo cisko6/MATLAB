@@ -8,6 +8,9 @@
 %M = load("C:\Users\patri\Desktop\diplomka\Real Utoky\Utok2Cely.txt"); % utok 2
 %M = load("C:\Users\patri\Desktop\diplomka\Real Utoky\Utok3Cely.txt"); % utok 3
 %M = load("C:\Users\patri\Desktop\diplomka\Real Utoky\Utok_5_CICIDS.txt"); % utok 5
+%M = importdata("C:\Users\patri\Desktop\diplomka\Real Utoky\Utok3Cely.txt"); % utok 5 but works
+
+
 data = reshape(M,1,height(M));
 
 slot_window = 1; % U1=1; U2=1;0.5; U3 = 0.01

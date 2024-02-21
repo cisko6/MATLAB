@@ -12,7 +12,11 @@ c = fft(a) / N;
 ca = abs(c);
 ca(1) = 0;
 
-y = ifft(c) * N;
+% Vyhladenie
+smooth_range = 100; % Počet frekvencií, ktoré chceme zachovať
+c(smooth_range+2:end-smooth_range) = 0; % Vynulovanie frekvencií mimo rozsahu
+
+y = ifft(c) * N/2;
 
 subplot(3,1,1);
 plot(a);

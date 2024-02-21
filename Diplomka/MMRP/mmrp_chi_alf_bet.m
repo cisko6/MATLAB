@@ -2,7 +2,7 @@ clear
 clc
 
 % parametre, čo treba meniť
-file_path = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_1.mat";
+file_path = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_5_v2";
 posun_dat = 1000;
 
 [~, folder_name, ~] = fileparts(file_path);
@@ -117,7 +117,7 @@ lastNonZeroIndex = find(mmrp_sampled, 1, 'last');
 mmrp_sampled = mmrp_sampled(1:lastNonZeroIndex);
 %%%
 
-for k=2:999999 %length(data)-posun_dat-shift
+for k=2:2%999999 %length(data)-posun_dat-shift
 
     if ~mod(k,shift) == 0
         continue
@@ -142,16 +142,24 @@ for k=2:999999 %length(data)-posun_dat-shift
     alfa = 1 - (ppeak * n/lambda_avg)^(1/(n-1));
     beta = (lambda_avg * alfa) / (n - lambda_avg);
 
-    % chi kvadrat
-    data_pdf = histcounts(data,'Normalization', 'probability');
-    mmrp_pdf = histcounts(mmrp_sampled, length(data_pdf),'Normalization', 'probability');
-
     alfa_plot(index) = alfa;
     beta_plot(index) = beta;
-   
+
+    % chi kvadrat
+    %data_pdf = histcounts(data,'Normalization', 'probability');
+    %mmrp_pdf = histcounts(mmrp_sampled, length(data_pdf),'Normalization', 'probability');
+
+    data_chi = histcounts(data,5);
+    mmrp_chi = histcounts(mmrp_sampled, length(data_chi));
+
+    chi2_stat(index) = chisquaretest(mmrp_chi,data_chi);
+    df = length(data_chi) - 1;
+    chi_alfa = 0.05;
+    critical_value(index) = chi2inv(1 - chi_alfa, df);
+    p_value(index) = 1 - chi2cdf(chi2_stat(index), df);
 
 
-
+    %{
     % P-VALUE
     data_chi = histcounts(data);
     mmrp_chi = histcounts(mmrp_sampled, length(data_pdf));
@@ -163,8 +171,9 @@ for k=2:999999 %length(data)-posun_dat-shift
             data_chi(l) = 10^(-6);
         end
     end
+    
 
-    diverg(index) = kl_diverg(data_chi,mmrp_chi); % dkl
+    %diverg(index) = kl_diverg(data_chi,mmrp_chi); % dkl
 
     chi2value(index) = chisquaretest(data_chi,mmrp_chi); % chi statistic
     df = length(data_chi) - 1; % stupen volnosti
@@ -173,7 +182,7 @@ for k=2:999999 %length(data)-posun_dat-shift
     p_value(index) = 1 - chi2cdf(chi2value(index), df); % p-value
 
     %[h(index), p(index)] = chi2gof(data_chi, 'Expected', mmrp_chi);
-
+    %}
     index = index + 1;
 end
 
@@ -190,25 +199,9 @@ subplot(4,1,3)
 plot(beta_plot)
 title("beta")
 subplot(4,1,4)
-plot(chi2value)
+plot(chi2_stat)
 title("chi kvadrat")
 
-figure
-
-%plot(data2);
-%hold on
-t = linspace(1, length(data2), length(data2));
-a = max(data2);
-tcw1 = linspace(posun_dat,length(data2),length(data2)-posun_dat-2);
-%plot(t,a,tcw1,posun_dat*chi2value/2,'r');% *10
-plot(chi2value,'r');
-hold on
-%plot(t,a,tcw1,diverg*100,'g');
-plot(diverg,'g');
-title("Chi2, Kullback-Leibler Divergence");
-legend("Chi2","DKL");
-xlabel("čas(s)")
-ylabel("Počet paketov")
 
 figure
 
@@ -216,7 +209,7 @@ figure
 %hold on
 plot(critical_value,'r');
 hold on
-plot(chi2value,'b');
+plot(chi2_stat,'b');
 legend("critical value","chivalue");
 title("critical value - chivalue");
 
@@ -235,8 +228,8 @@ legend("alfa","p-value");
 %title("Ak je 0 tak prešiel testom (1 = reject null hypothesis)");
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function chi2_stat = chisquaretest(expected, observed)
-    pseudo_count = 1;
-    chi2_stat = sum((observed - expected).^2 ./ (expected + pseudo_count));
+    %pseudo_count = 1;
+    chi2_stat = sum((observed - expected).^2 ./ (expected)); % (expected + pseudo_count)
 end
 
 function diverg = kl_diverg(P,Q)

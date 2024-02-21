@@ -69,8 +69,18 @@ beta_2 = (lambda_avg * alfa_2) / ((sample_size * p_2) - lambda_avg);
 
 %%%%%%%%%%%%%%%%%%%%%%%% ET ET2 %%%%%%%%%%%%%%%%%%%%%%%%
 
-et = ((alfa_2 + beta_2)/(beta_2 * p_2)) - 1;
+%et = ((alfa_2 + beta_2)/(beta_2 * p_2)) - 1;
 %et2 = % netusim čo je q
+
+lastNonZeroIndex = find(sampled_mmbp_data, 1, 'last');
+sampled_mmbp_data = sampled_mmbp_data(1:lastNonZeroIndex);
+
+et = sampled_mmbp_data(lastNonZeroIndex) / lastNonZeroIndex;
+
+ti = diff(sampled_mmbp_data);
+ti2 = ti.^2;
+n = max(sampled_mmbp_data);
+et2 = (1/(n - 1)) * sum(ti2);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%% OUTPUT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
