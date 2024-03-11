@@ -64,6 +64,8 @@ ppeak = peak/length(sampled_mmbp_data);
 p_2 = 0.8;
 sample_size = 8; % n
 
+spodna_hranica_p = (sample_size*ppeak/lambda_avg)^(1/sample_size-1);
+
 alfa_2 = 1 - (((sample_size * ppeak) / lambda_avg)^(1 / (sample_size - 1))) * 1 / p_2;
 beta_2 = (lambda_avg * alfa_2) / ((sample_size * p_2) - lambda_avg);
 
@@ -75,7 +77,7 @@ beta_2 = (lambda_avg * alfa_2) / ((sample_size * p_2) - lambda_avg);
 lastNonZeroIndex = find(sampled_mmbp_data, 1, 'last');
 sampled_mmbp_data = sampled_mmbp_data(1:lastNonZeroIndex);
 
-et = sampled_mmbp_data(lastNonZeroIndex) / lastNonZeroIndex;
+et = sampled_mmbp_data(lastNonZeroIndex) / lastNonZeroIndex; % ked sa na tento vzorec divam po case tak toto "sampled_mmbp_data(lastNonZeroIndex)" je zle lebo nemam kumulativne casy
 
 ti = diff(sampled_mmbp_data);
 ti2 = ti.^2;

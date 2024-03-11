@@ -47,7 +47,7 @@ et2 = (1/(n - 1)) * sum(ti2);
 
 %%%%%%%%%%%%%%%%%%%%%%%%% SIMULACIA MMRP %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-mmrp_data = generate_mmrp(pocet_bitov,dlzka_dat, alfa, beta);
+mmrp_data = generate_mmrp(pocet_bitov,pocet_bitov, alfa, beta);
 sampled_mmrp = sample_generated_data(mmrp_data, pocet_bitov, n);
 
 % vymazanie nul na konci z dát

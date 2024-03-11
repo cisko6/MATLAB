@@ -1,5 +1,12 @@
 
-%M = readtable("C:\Users\patri\Downloads\TIS zaznamy\01 tsharkPONDELOK4.csv");
+clear
+clc
+
+folder_path = "C:\Users\patri\Downloads\TIS zaznamy\09 tsharkSTVRTOK7.csv";
+
+M = readtable(folder_path);
+
+[~, folder_name, ~] = fileparts(folder_path);
 
 dlzka_csv = height(M)-1;
 data_casy = M.Var6;
@@ -28,7 +35,7 @@ plot(medzery);
 matrix_column_vector = medzery(:);
 
 % Specify the file name
-file_name = 'pod_sebou.txt';
+file_name = sprintf('%s.txt', folder_name);
 
 % Open the file for writing
 fileID = fopen(file_name, 'w');
