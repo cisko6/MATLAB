@@ -1,6 +1,10 @@
 
+clear; clc
+
+% vstup kumulovane medzery
+
 %csv
-%M = readtable("C:\Users\patri\Desktop\diplomka\Real Utoky\CICIDS 1.csv");
+M = readtable("C:\Users\patri\Desktop\diplomka\Real Utoky\CICIDS 1.csv");
 %data = reshape(M.Var1,1,height(M));
 
 %txt
@@ -13,13 +17,13 @@
 
 data = reshape(M,1,height(M));
 
-slot_window = 1; % U1=1; U2=1;0.5; U3 = 0.01
+slot_window = 0.5; % U1=1; U2=1;0.5; U3 = 0.01
 
 pocet_bitov = 2100000; % U1 stacionar
 data = data(1:pocet_bitov);
 
 
-sampled_data = sample_data(data, pocet_bitov, slot_window);
+sampled_data = sample_cumulated_spaces(data, pocet_bitov, slot_window);
 
 % vymazanie nul na konci z dát
 lastNonZeroIndex = find(sampled_data, 1, 'last');
@@ -71,7 +75,8 @@ histogram(sampled_data, 'Normalization', 'probability');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [sampled_data] = sample_data(data, dlzka_dat, slot_window)
+
+function [sampled_data] = sample_cumulated_spaces(data, dlzka_dat, slot_window)
 
     sampled_index = 1;
     sampled_data = zeros(1,ceil(length(data)/10)); %toto plati pre 1 sw -> zeros(1,ceil(max(data)) + 1); % +1 lebo môžu dáta končiť celým číslom
@@ -81,7 +86,7 @@ function [sampled_data] = sample_data(data, dlzka_dat, slot_window)
         if data(i) < pom_slot_window
             sampled_data(sampled_index) = sampled_data(sampled_index) + 1;
         else
-            if data(i) >= (sampled_index + slot_window) % ošetrenie ak timeslot mal 0 prírastkov -> index sa musí posunúť
+            if data(i) >= (sampled_index + slot_window) % toto je zle medzery_vytvorenie_cumulated file je spravne
                 while true
                     if data(i) >= (sampled_index + slot_window)
                         sampled_index = sampled_index + slot_window;
@@ -95,7 +100,6 @@ function [sampled_data] = sample_data(data, dlzka_dat, slot_window)
             pom_slot_window = pom_slot_window + slot_window;
         end
     end
-
 end
 
 %

@@ -2,6 +2,8 @@
 clear
 clc
 
+% vstup pcap
+
 folder_path = "C:\Users\patri\Downloads\TIS zaznamy\09 tsharkSTVRTOK7.csv";
 
 M = readtable(folder_path);
@@ -31,20 +33,10 @@ end
 
 plot(medzery);
 
-% Reshape the matrix to a column vector
+
 matrix_column_vector = medzery(:);
-
-% Specify the file name
 file_name = sprintf('%s.txt', folder_name);
-
-% Open the file for writing
 fileID = fopen(file_name, 'w');
-
-% Write the values to the file
 fprintf(fileID, '%f\n', matrix_column_vector);
-
-% Close the file
 fclose(fileID);
 
-%dlmwrite("test.txt", medzery);
-%writematrix(medzery, 'MyFile.txt')

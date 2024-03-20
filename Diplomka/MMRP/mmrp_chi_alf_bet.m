@@ -100,10 +100,8 @@ data = data2(1:posun_dat);
 % mean, max, ppeak
 lambda_avg = mean(data);
 n = max(data);
-
 peak_count = numel(find(data==n));
 ppeak = peak_count/length(data);
-
 
 alfa = 1 - (ppeak * n/lambda_avg)^(1/(n-1));
 beta = (lambda_avg * alfa) / (n - lambda_avg);
@@ -115,8 +113,8 @@ mmrp_sampled = sample_generated_data(mmrp_data, ceil(n*length(data)), ceil(n));
 % vymazanie nul na konci z dát
 lastNonZeroIndex = find(mmrp_sampled, 1, 'last');
 mmrp_sampled = mmrp_sampled(1:lastNonZeroIndex);
-%%%
 
+% pocitanie alf,bet,chi
 for k=2:2%999999 %length(data)-posun_dat-shift
 
     if ~mod(k,shift) == 0
@@ -134,7 +132,6 @@ for k=2:2%999999 %length(data)-posun_dat-shift
     % mean, max, ppeak
     lambda_avg = mean(data);
     n = max(data);
-    
     peak_count = numel(find(data==n));
     ppeak = peak_count/length(data);
 
