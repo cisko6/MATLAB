@@ -3,7 +3,7 @@
 
 % vstup kumulovane medzery
 
-%M = importdata("C:\Users\patri\Desktop\diplomka\TIS\Cele zaznamy\TIS medzery\kumulovane medzery\0104.txt");
+M = importdata("C:\Users\patri\Desktop\diplomka\TIS\Cele zaznamy\TIS medzery\kumulovane medzery\0104.txt");
 
 dlzka_dat = length(M);
 

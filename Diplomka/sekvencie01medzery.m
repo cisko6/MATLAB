@@ -1,7 +1,9 @@
+
 clc
 clear
 
-% vyskusajte na 10000 0/1 z Bernouliho p = 0.7, stredna hodnota musi byt priblizne ET = 3/7
+% vyskusajte na 10000 0/1 z Bernouliho p = 0.7, stredna hodnota musi byt
+% priblizne ET = 3/7, diperzia 3/49?
 pocet_generovanych = 1000;
 p = 0.7;
 max_hodnota = 1;
@@ -37,10 +39,6 @@ disp(outArray);
 
 % et
 
-% Calculate the mean length of zeros
 meanLength = sum(zeroLengths) / length(zeroLengths);
-
-% Display the mean length
 disp(meanLength);
-
 
