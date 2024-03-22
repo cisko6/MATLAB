@@ -28,36 +28,16 @@ protocols = M.Var13;
 %    pom_size = 0;
 %end
 
-%%%%%%%%%%%%%%%% pocty tcp udp
-
-% slotovanie pocty
-data_casy = M.Var6;
-
-tStart = min(data_casy);
-tEnd = max(data_casy);
-timeBins = tStart:seconds(slot_window):tEnd;
-[counts, ~] = histcounts(data_casy, timeBins);
-
 % vytvorenie nekumulovanych medzier
+data_casy = M.Var6;
 minuty = data_casy.Minute;
 sekundy = data_casy.Second;
-medzery = zeros(1,dlzka_pcapu);
-for i=1:dlzka_pcapu
+medzery = create_spaces_from_pcap(dlzka_pcapu, sekundy, minuty);
 
-    medzery(i) = sekundy(i+1) - sekundy(i);
+% slotovanie pocty
+sampled_data = sample_pcap(data_casy, slot_window);
 
-    if minuty(i) ~= minuty(i+1)
-        medzery(i) = medzery(i) + 60;
-    end
-
-    if medzery(i) < 0
-        medzery(i) = 0.0001;
-    end
-
-end
-
-
-% velkost paketov tcp udp pocty
+% pocty + velkost = zaznamu, tcp, udp, other
 sampled_data_kb = zeros(1,dlzka_pcapu);
 tcp_pocty = zeros(1,dlzka_pcapu);
 tcp_kB = zeros(1,dlzka_pcapu);
@@ -118,9 +98,9 @@ end
 %%%%%%%%%%%%%%%%
 
 subplot(4,1,1)
-lastNonZeroIndex = find(counts, 1, 'last');
-counts = counts(1:lastNonZeroIndex);
-plot(counts);
+lastNonZeroIndex = find(sampled_data, 1, 'last');
+sampled_data = sampled_data(1:lastNonZeroIndex);
+plot(sampled_data);
 xlim([1 lastNonZeroIndex])
 title("Pocty paketov - slot window="+ slot_window +"s")
 
@@ -176,3 +156,29 @@ plot(udp_kB);
 xlim([1 lastNonZeroIndex])
 title("Velkost paketov UDP")
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function medzery = create_spaces_from_pcap(dlzka_csv, sekundy, minuty)
+    medzery = zeros(1,dlzka_csv);
+    for i=1:dlzka_csv-1
+    
+        medzery(i) = sekundy(i+1) - sekundy(i);
+    
+        if minuty(i) ~= minuty(i+1)
+            medzery(i) = medzery(i) + 60;
+        end
+    
+        if medzery(i) < 0
+            medzery(i) = 0.0001;
+        end
+    end
+end
+
+function sampled_data = sample_pcap(data_casy, slot_window)
+    tStart = min(data_casy);
+    tEnd = max(data_casy);
+    
+    timeBins = tStart:seconds(slot_window):tEnd;
+    
+    [sampled_data, ~] = histcounts(data_casy, timeBins);
+end

@@ -1,10 +1,9 @@
 
-clear
-clc
+%clear;clc
 
 % vstup nekumulovane medzery - ignoruje nuly
 
-M = importdata("C:\Users\patri\Desktop\diplomka\TIS\Cele zaznamy\TIS medzery\medzery\0207.txt");
+M = importdata("C:\Users\patri\Desktop\diplomka\TIS\Cele zaznamy\TIS medzery\nekumulovane medzery\0207.txt");
 n1 = numel(M);
 data = M;
 data = M(1:ceil(n1/10)); %0207
@@ -31,26 +30,31 @@ slot_window = 0.1;       %0207
 %data = M(4*n1/32:6*n1/32); %0701
 %slot_window = 0.1;    %0701
 
-sampled_index = 1;
-sampled_data = zeros(1,length(data));
-pom_sucet = 0;
 
-for i=1:length(data)
-    pom_sucet = pom_sucet + data(i);
+sampled_data = medzery_to_casyy(data, slot_window);
 
-    if pom_sucet < slot_window
-        sampled_data(sampled_index) = sampled_data(sampled_index) + 1;
-    else
-        sampled_index = sampled_index + 1;
-        sampled_data(sampled_index) = sampled_data(sampled_index) + 1;
-        pom_sucet = 0;
-    end
-end
 
-% vymazanie nul na konci z dát
 lastNonZeroIndex = find(sampled_data, 1, 'last');
 sampled_data = sampled_data(1:lastNonZeroIndex);
 plot(sampled_data)
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function sampled_data = medzery_to_casyy(data, slot_window)
+    sampled_index = 1;
+    sampled_data = zeros(1,length(data));
+    pom_sucet = 0;
+    
+    for i=1:length(data)
+        pom_sucet = pom_sucet + data(i);
+    
+        if pom_sucet < slot_window
+            sampled_data(sampled_index) = sampled_data(sampled_index) + 1;
+        else
+            sampled_index = sampled_index + 1;
+            sampled_data(sampled_index) = sampled_data(sampled_index) + 1;
+            pom_sucet = 0;
+        end
+    end
+end
 

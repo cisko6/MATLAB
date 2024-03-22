@@ -15,23 +15,16 @@ dlzka_celych_dat = length(M.a);
 data = M.a;
 data = data(from:to);
 
-% mean, max, ppeak
-lambda_avg = mean(data);
-n = max(data);
-peak_count = numel(find(data==n));
-ppeak = peak_count/length(data);
-
-%alfa beta
-alfa = 1 - (ppeak * n/lambda_avg)^(1/(n-1));
-beta = (lambda_avg * alfa) / (n - lambda_avg);
+% zistenie alfa beta
+[alfa, beta, n] = zisti_alf_bet(data);
 
 %generovanie a samplovanie mmrp
 mmrp_data = generate_mmrp(n*length(data),length(data),alfa,beta);
 mmrp_sampled = sample_generated_data(mmrp_data, ceil(n*length(data)), ceil(n));
 
 % vymazanie nul na konci z dát pre plot
-lastNonZeroIndex = find(mmrp_sampled, 1, 'last');
-mmrp_sampled = mmrp_sampled(1:lastNonZeroIndex);
+%lastNonZeroIndex = find(mmrp_sampled, 1, 'last');
+%mmrp_sampled = mmrp_sampled(1:lastNonZeroIndex);
 
 % rovnaká Y os pre histogramy
 maxValue = max(max(histcounts(data, 'Normalization', 'probability')), ...
@@ -145,7 +138,17 @@ xlim([0 dlzka_celych_dat])
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+function [alfa, beta, n] = zisti_alf_bet(data)
+    % mean, max, ppeak
+    lambda_avg = mean(data);
+    n = max(data);
+    peak_count = numel(find(data==n));
+    ppeak = peak_count/length(data);
+    
+    %alfa beta
+    alfa = 1 - (ppeak * n/lambda_avg)^(1/(n-1));
+    beta = (lambda_avg * alfa) / (n - lambda_avg);
+end
 
 
 function [mmrp_data] = generate_mmrp(pocet_bitov,dlzka_dat, alfa,beta)
@@ -181,4 +184,6 @@ function [result_data] = sample_generated_data(data, pocet_bitov, sample_size)
         pom_sum = sum(data((i*sample_size)+1:(i*sample_size)+sample_size));
         result_data(i+1) = pom_sum;
     end
+    lastNonZeroIndex = find(result_data, 1, 'last');
+    result_data = result_data(1:lastNonZeroIndex);
 end

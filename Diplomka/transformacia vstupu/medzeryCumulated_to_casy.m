@@ -31,19 +31,19 @@ slot_window = 0.1;       %0207
 %data = M(4*n1/32:6*n1/32); %0701
 %slot_window = 0.1;    %0701
 
-sampled_data = countNumbersPerSecondFlexible(data,slot_window);
+sampled_data = cumulatedSpaces_to_casy(data,slot_window);
 plot(sampled_data)
 
 
-function sampled_data = countNumbersPerSecondFlexible(data, samplingRate)
+function sampled_data = cumulatedSpaces_to_casy(data, slot_window)
 
     maxTime = max(data);
-    numBins = ceil(maxTime / samplingRate) + 1;
+    numBins = ceil(maxTime / slot_window) + 1;
     
     sampled_data = zeros(1, numBins);
     
     for i = 1:length(data)
-        binIndex = floor(data(i) / samplingRate) + 1;
+        binIndex = floor(data(i) / slot_window) + 1;
         
         sampled_data(binIndex) = sampled_data(binIndex) + 1;
     end

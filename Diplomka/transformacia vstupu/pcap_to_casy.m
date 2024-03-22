@@ -37,11 +37,19 @@ n1 = numel(data_casy);
 %data_casy = data_casy(ceil(4*n1/32):ceil(6*n1/32)); %0701
 slot_window = 0.1;    %0701
 
-tStart = min(data_casy);
-tEnd = max(data_casy);
+sampled_data = sample_pcap(data_casy, slot_window);
 
-timeBins = tStart:seconds(slot_window):tEnd;
+plot(sampled_data)
 
-[counts, ~] = histcounts(data_casy, timeBins);
 
-plot(counts)
+function sampled_data = sample_pcap(data_casy, slot_window)
+    tStart = min(data_casy);
+    tEnd = max(data_casy);
+    
+    timeBins = tStart:seconds(slot_window):tEnd;
+    
+    [sampled_data, ~] = histcounts(data_casy, timeBins);
+end
+
+
+
