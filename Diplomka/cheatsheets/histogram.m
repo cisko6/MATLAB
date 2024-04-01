@@ -21,13 +21,10 @@ xlim(xx.Parent, [0 maxValue])
 xlim(yy.Parent, [0 maxValue])
 xlim(zz.Parent, [0 maxValue])
 
-% nastavenie trom histogramom rovnaku Y os (da chybu lebo je to skopirovane z ineho mfile)
-ylim_hist = max( ...
-            max(histcounts(data_casy, 'Normalization', 'probability')), ...
-            max(histcounts(mmrp_sampled, 'Normalization', 'probability')));
-ylim_hist = max(ylim_hist, max(histcounts(mmrp_sampled_fourier, 'Normalization', 'probability')));
+% nastavenie dvom histogramom rovnaku Y os (da chybu lebo je to skopirovane z ineho mfile)
+y_for_hist = max([hist_data.Values, hist_mmrp.Values]);
 
-histogram(mmrp_sampled_fourier,'Normalization', 'probability');
-ylim([0 ylim_hist])
+ylim(hist_data.Parent, [0 y_for_hist])
+ylim(hist_mmrp.Parent, [0 y_for_hist])
 
 

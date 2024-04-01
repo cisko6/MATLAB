@@ -1,18 +1,17 @@
 
-%clear;clc
+clear;clc
 
-% vstup pcap - TIS
+% vstup csv - TIS
 
-%M = readtable("C:\Users\patri\Desktop\diplomka\TIS\Po vybranych kuskoch\0207_3051.csv");
+M = readtable("C:\Users\patri\Desktop\diplomka\TIS\Po vybranych kuskoch\0207_3051.csv");
 
-%max_size_kb = 50000; kB
 slot_window = 0.1;
-
 dlzka_pcapu = height(M) - 1;
 data_kb = M.Var8;
 protocols = M.Var13;
 
 %%%%%%%%%%%%%%%% velkost paketov navzorkovana na dany pocet kB - blbost
+%max_size_kb = 50000; kB
 %index_size = 1;
 %pom_size = 0;
 %for i=1:dlzka_pcapu
@@ -32,7 +31,7 @@ protocols = M.Var13;
 data_casy = M.Var6;
 minuty = data_casy.Minute;
 sekundy = data_casy.Second;
-medzery = create_spaces_from_pcap(dlzka_pcapu, sekundy, minuty);
+medzery = create_spaces_from_csvPcap(dlzka_pcapu, sekundy, minuty);
 
 % slotovanie pocty
 sampled_data = sample_pcap(data_casy, slot_window);
@@ -158,7 +157,7 @@ title("Velkost paketov UDP")
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function medzery = create_spaces_from_pcap(dlzka_csv, sekundy, minuty)
+function medzery = create_spaces_from_csvPcap(dlzka_csv, sekundy, minuty)
     medzery = zeros(1,dlzka_csv);
     for i=1:dlzka_csv-1
     

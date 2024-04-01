@@ -1,48 +1,21 @@
 
-%clear
-%clc
+%clear;clc
 
-% vstup kumulovane medzery
+folder_path = "C:\Users\patri\Desktop\Veronika datasety\cic-ids-2017\Thursday\cic-ids-2017_Thursday_pcap-files\Thursday-part_0.pcap";
 
-%M = readtable("C:\Users\patri\Desktop\diplomka\TIS\Po vybranych kuskoch\0207_3051.csv");
+%pcapAll = pcapReader(folder_path);
+%pcap = pcapAll.readAll; % toto zakomentovat ked nechcem cakat rok
+[~, folder_name, ~] = fileparts(folder_path);
 
-data_casy = M.Var6;
-n1 = numel(data_casy);
-
-%data_casy = data_casy(1:ceil(n1/10)); %0207
-%slot_window = 0.1;       %0207
-
-%data_casy = data_casy(500000:ceil(n1/6)); %0402
-%slot_window = 0.1;       %0402
-
-%data_casy = data_casy(20000:ceil(n1/20)); %0504a pre medzery
-%data_casy = data_casy(20000:2500000); %0504a pre pcap
-%slot_window = 0.01;    %0504a
-
-%data_casy = data_casy(ceil(15*n1/40):ceil(17*n1/40)); %0504b
-%slot_window = 0.01;    %0504b
-
-%data_casy = data_casy(ceil(27*n1/40):ceil(31*n1/40)); %0504c
-%slot_window = 0.1;    %0504c
-
-%data_casy = data_casy(1:ceil(n1/20)); %0605a
-%slot_window = 0.01;    %0605a
-
-%data_casy = data_casy(ceil(6*n1/20):ceil(7*n1/20)); %0605b 12 000 000 : 14 000 000
-%slot_window = 0.01;    %0605b
-
-%data_casy = data_casy(ceil(6*n1/20):ceil(7*n1/20)); %0605b 12 000 000 : 14 000 000
-%slot_window = 0.01;    %0605b
-
-%data_casy = data_casy(ceil(4*n1/32):ceil(6*n1/32)); %0701
-slot_window = 0.1;    %0701
-
-sampled_data = sample_pcap(data_casy, slot_window);
-
+slot_window = 0.01;
+sampled_data = sample_pcap(pcap, slot_window);
 plot(sampled_data)
+title("pcap "+folder_name+" slot window="+slot_window)
 
 
-function sampled_data = sample_pcap(data_casy, slot_window)
+function sampled_data = sample_pcap(pcap, slot_window)
+    data_casy = datetime([pcap(:).Timestamp] / 1e6, 'ConvertFrom', 'posixtime');
+
     tStart = min(data_casy);
     tEnd = max(data_casy);
     
@@ -50,6 +23,3 @@ function sampled_data = sample_pcap(data_casy, slot_window)
     
     [sampled_data, ~] = histcounts(data_casy, timeBins);
 end
-
-
-

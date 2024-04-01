@@ -13,7 +13,7 @@ data_casy = M.Var6;
 minuty = data_casy.Minute;
 sekundy = data_casy.Second;
 
-medzery = create_spaces_from_pcap(dlzka_csv, sekundy, minuty);
+medzery = create_spaces_from_csvPcap(dlzka_csv, sekundy, minuty);
 plot(medzery);
 
 % zapisat do foldera
@@ -24,7 +24,7 @@ plot(medzery);
 %fprintf(fileID, '%f\n', matrix_column_vector);
 %fclose(fileID);
 
-function medzery = create_spaces_from_pcap(dlzka_csv, sekundy, minuty)
+function medzery = create_spaces_from_csvPcap(dlzka_csv, sekundy, minuty)
     medzery = zeros(1,dlzka_csv);
     for i=1:dlzka_csv-1
     

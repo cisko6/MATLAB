@@ -2,8 +2,8 @@ clear
 clc
 
 % Parametre
-alfa = 0.5;
-beta = 0.5;
+alfa = 0.95;
+beta = 0.95;
 sample_size = 10;
 pocet_generovanych = 2000;
 stav = 1;
@@ -76,6 +76,8 @@ ylabel('1/0');
 grid on
 %saveas(fig1,sprintf('MMRP_alf=%.2f, bet=%.2f.fig',alfa,beta));
 %saveas(fig1,sprintf('MMRP_alf=%.2f, bet=%.2f.png',alfa,beta));
+
+figure
 
 fig2 = plot(sampled_data);
 title("Navzorkované dáta na "+sample_size+" ts, α = "+alfa+" a β = "+beta);

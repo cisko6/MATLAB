@@ -3,7 +3,7 @@
 
 % vstup pcap
 
-folder_path = "C:\Users\patri\Desktop\diplomka\TIS\Po vybranych kuskoch\0207_3051.csv";
+folder_path = "C:\Users\patri\Desktop\diplomka\TIS\Po vybranych kuskoch\0504a_14307.csv";
 slot_window = 0.1;
 percent_to_keep_fft = 0.2;
 
@@ -23,7 +23,7 @@ cumulated_spaces = cumulate_spaces(medzery);
 
 % samplovanie kumulovanych medzier
 data_casy = cumulatedSpaces_to_casy(cumulated_spaces, slot_window);
-data_casy = data_casy(1:2300);
+data_casy = data_casy(1:1400);
 
 % generate mmrp without fourier
 [alfa, beta, n] = zisti_alf_bet(data_casy);
