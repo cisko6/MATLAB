@@ -4,7 +4,7 @@ clc
 %parametre na menienie
 % where_to_store, attacks_folder, posun_dat
 
-where_to_store = "C:\Users\patri\Documents\GitHub\MATLAB\Diplomka";
+where_to_store = "C:\Users\patri\Documents\GitHub\MATLAB\Diplomka\Automated\inak\Simul po kúskoch";
 attacks_folder = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\";
 
 for p=1:9
@@ -41,7 +41,7 @@ for p=1:9
         [~, folder_name, ~] = fileparts(file_path);
         full_folder_name = folder_name + "\" + num2str(posun_dat);
         folder_path = fullfile(where_to_store, full_folder_name);
-
+        
         if ~exist(folder_path, 'dir')
             mkdir(folder_path);
         end
@@ -59,7 +59,7 @@ for p=1:9
         end
         close(figall)
         
-        for k=1:9999 % počet posunov
+        for k=1:999 % počet posunov
         
             data = M.a;
         
@@ -89,18 +89,18 @@ for p=1:9
             beta = (lambda_avg * alfa) / (n - lambda_avg);
             
             %generovanie a samplovanie mmrp
-            mmrp_data = generate_mmrp(n*length(data),length(data),alfa,beta);
-            mmrp_sampled = sample_generated_data(mmrp_data, ceil(n*length(data)), ceil(n));
+            gen_data = generate_mmrp(n*length(data),length(data),alfa,beta);
+            gen_sampled = sample_generated_data(gen_data, ceil(n*length(data)), ceil(n));
             
             
             
             % vymazanie nul na konci z dát pre plot
-            lastNonZeroIndex = find(mmrp_sampled, 1, 'last');
-            mmrp_sampled = mmrp_sampled(1:lastNonZeroIndex);
+            lastNonZeroIndex = find(gen_sampled, 1, 'last');
+            gen_sampled = gen_sampled(1:lastNonZeroIndex);
             
             % rovnaká Y os pre histogramy
             maxValue = max(max(histcounts(data, 'Normalization', 'probability')), ...
-                       max(histcounts(mmrp_sampled, 'Normalization', 'probability')));
+                       max(histcounts(gen_sampled, 'Normalization', 'probability')));
             if maxValue <= 0.1
                 maxValue = maxValue + 0.01;
             elseif maxValue > 0.1 && maxValue < 0.5
@@ -115,7 +115,7 @@ for p=1:9
             title(sprintf('Data od %d do %d z %s', from, to, folder_name));
         
             subplot(4,1,2)
-            plot(mmrp_sampled)
+            plot(gen_sampled)
             title("MMRP");
         
             subplot(4,1,3)
@@ -124,7 +124,7 @@ for p=1:9
             ylim([0 maxValue])
         
             subplot(4,1,4)
-            hist_mmrp = histogram(mmrp_sampled, 'Normalization', 'probability','NumBins',hist_data.NumBins);
+            hist_mmrp = histogram(gen_sampled, 'Normalization', 'probability','NumBins',hist_data.NumBins);
             title("Histogram MMRP")
             ylim([0 maxValue])
         
@@ -141,87 +141,10 @@ for p=1:9
             saveas(fig,fullfile(folder_path,sprintf('Vzorka_od_%d_do_%d.fig',from,to)));
             saveas(fig,fullfile(folder_path,sprintf('Vzorka_od_%d_do_%d.png',from,to)));
         
-            clearvars -except M file_path folder_path where_to_store attacks_folder posun_dat folder_name where_to_store attacks_folder;
+            clearvars -except M file_path folder_path where_to_store attacks_folder posun_dat folder_name;
             close all;
+        
         end
-
-        clearvars -except M posun_dat folder_name folder_path where_to_store file_path attacks_folder;
-        close all;
-        
-        shift = 10;
-        data2 = M.a;
-        index = 1;
-        
-        for k=1:999999 %length(data)-posun_dat-shift
-        
-            if ~mod(k,shift) == 0
-                continue
-            end
-        
-            from = k + shift;
-            to = from + posun_dat;
-            try
-                data = data2(from:to);
-            catch
-                break
-            end
-            
-            % mean, max, ppeak
-            lambda_avg = mean(data);
-            n = max(data);
-            
-            peak_count = numel(find(data==n));
-            ppeak = peak_count/length(data);
-        
-        
-            alfa = 1 - (ppeak * n/lambda_avg)^(1/(n-1));
-            beta = (lambda_avg * alfa) / (n - lambda_avg);
-            
-            %alfa beta
-            if alfa < 0 || beta < 0
-                fprintf("zaporne! alfa=%f,beta=%f,k=%d\n",alfa,beta,k);
-            end
-        
-            %generovanie a samplovanie mmrp
-            mmrp_data = generate_mmrp(n*length(data),length(data),alfa,beta);
-            mmrp_sampled = sample_generated_data(mmrp_data, ceil(n*length(data)), ceil(n));
-        
-            % vymazanie nul na konci z dát
-            lastNonZeroIndex = find(mmrp_sampled, 1, 'last');
-            mmrp_sampled = mmrp_sampled(1:lastNonZeroIndex);
-        
-            % chi kvadrat
-            values1 = histcounts(data,'Normalization', 'probability');
-            values2 = histcounts(mmrp_sampled, length(values1),'Normalization', 'probability');
-        
-            chi2value(index) = chisquaretest(values1,values2);
-            alfa_plot(index) = alfa;
-            beta_plot(index) = beta;
-            index = index + 1;
-        end
-        
-        fig3 = figure;
-        subplot(4,1,1)
-        plot(data2)
-        title(sprintf('Data, posun=%d, dat v bloku=%d, utok=%s', shift, posun_dat, folder_name));
-        subplot(4,1,2)
-        plot(alfa_plot)
-        title("alfa")
-        subplot(4,1,3)
-        plot(beta_plot)
-        title("beta")
-        subplot(4,1,4)
-        plot(chi2value)
-        title("chi kvadrat")
-
-        % uložiť alf,bet,chi
-        utok_path = fullfile(where_to_store, folder_name);
-
-        saveas(fig3,fullfile(utok_path,sprintf('Alfa_beta_chi_posun-%d_shift-%d.fig',posun_dat,shift)));
-        saveas(fig3,fullfile(utok_path,sprintf('Alfa_beta_chi_posun-%d_shift-%d.png',posun_dat,shift)));
-
-        clearvars -except M file_path folder_path where_to_store attacks_folder posun_dat folder_name where_to_store attacks_folder;
-        close all;
     end
 end
 

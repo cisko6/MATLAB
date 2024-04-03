@@ -2,8 +2,12 @@
 clc; clear;
 
 % parametre, čo treba meniť
-file_path = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_5_v2";
+file_path = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_1";
 posun_dat = 1000;
+chi_alfa = 0.05;
+pocet_tried_hist = 5;
+
+
 
 [~, folder_name, ~] = fileparts(file_path);
 M = load(file_path);
@@ -48,18 +52,14 @@ for k=2:2999999 %length(data)-posun_dat-shift
     end
 
     % chi kvadrat
-    chi_alfa = 0.05;
 
     %data_pdf = histcounts(data,'Normalization', 'probability');
     %mmrp_pdf = histcounts(mmrp_sampled, length(data_pdf),'Normalization', 'probability');
 
-    data_chi = histcounts(data,50);
+    data_chi = histcounts(data,pocet_tried_hist);
     mmrp_chi = histcounts(mmrp_sampled, length(data_chi));
 
-    obs1 = data_chi;
-    obs2 = mmrp_chi;
-
-    %%%%%%%%%%%% THIS WORKS %%%%%%%%%%%%%%
+    %%%%%%%%%%%% THIS WORKS TOO %%%%%%%%%%%%%%
     %obs = [obs1; obs2];
     %row_totals = sum(obs, 2);
     %column_totals = sum(obs, 1);
@@ -69,6 +69,42 @@ for k=2:2999999 %length(data)-posun_dat-shift
     %chi2_stat = sum(sum((obs - expected).^2 ./ expected));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    [chi2_stat, p_value, critical_value] = chi_square_test(data_chi,mmrp_chi,chi_alfa);
+
+    chi2_stat_array(index) = chi2_stat;
+    p_value_array(index) = p_value;
+    critical_value_array(index) = critical_value;
+
+    index = index + 1;
+end
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+plot(M.a)
+title("data")
+legend("data");
+
+figure
+
+plot(critical_value_array,'r');
+hold on
+plot(chi2_stat_array,'b');
+legend("critical value","chi2stat");
+title("critical value, chi2stat");
+
+figure
+
+chi_alfa_plot(1:length(p_value_array)) = chi_alfa;
+plot(chi_alfa_plot,'m');
+hold on
+plot(p_value_array,'r');
+title("alfa, p value");
+legend("alfa","p-value");
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function [chi2_stat, p_value, critical_value, df] = chi_square_test(obs1,obs2,chi_alfa)
 
     obs = [obs1; obs2];
 
@@ -105,42 +141,7 @@ for k=2:2999999 %length(data)-posun_dat-shift
     %p_value = 1 - chi2cdf(chi2_stat, df);
     critical_value = chi2inv(1 - chi_alfa, df);
 
-    chi2_stat_array(index) = chi2_stat;
-    p_value_array(index) = p_value;
-    critical_value_array(index) = critical_value;
-
-    %disp(['Chi-square statistic = ', num2str(chi2_stat)]);
-    %disp(['Degrees of freedom = ', num2str(df)]);
-    %disp(['P-value = ', num2str(p_value)]);
-    %disp(['critical_value = ', num2str(critical_value)]);
-
-    index = index + 1;
 end
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-plot(M.a)
-title("data")
-legend("data");
-
-figure
-
-plot(critical_value_array,'r');
-hold on
-plot(chi2_stat_array,'b');
-legend("critical value","chi2stat");
-title("critical value, chi2stat");
-
-figure
-
-chi_alfa_plot(1:length(p_value_array)) = chi_alfa;
-plot(chi_alfa_plot,'m');
-hold on
-plot(p_value_array,'r');
-title("alfa, p value");
-legend("alfa","p-value");
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [mmrp_data] = generate_mmrp(pocet_bitov,dlzka_dat, alfa,beta)
     mmrp_data = zeros(1,ceil(dlzka_dat));

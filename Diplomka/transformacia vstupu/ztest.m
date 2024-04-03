@@ -1,17 +1,13 @@
 
-%clear;clc
 
-folder_path = "C:\Users\patri\Desktop\najdene utoky\biedne\A7\Wednesday-part_0.pcap";
-pcapAll = pcapReader(folder_path);
+folder_path = "C:\Users\patri\Desktop\najdene utoky\A1\Moloch-180418-10-04-anonymized.pcap";
+
+%pcapAll = pcapReader(folder_path);
 %pcap = pcapAll.readAll; % toto zakomentovat ked nechcem cakat rok
-pcap2 = pcap(25000:400000);
-[~, folder_name, ~] = fileparts(folder_path);
 
 slot_window = 0.1;
-sampled_data = sample_pcap(pcap2, slot_window);
+sampled_data = sample_pcap(pcap, slot_window);
 plot(sampled_data)
-title("pcap "+folder_name+" slot window="+slot_window)
-
 
 function sampled_data = sample_pcap(pcap, slot_window)
     data_casy = datetime([pcap(:).Timestamp] / 1e6, 'ConvertFrom', 'posixtime');

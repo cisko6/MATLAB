@@ -2,7 +2,7 @@ clear
 clc
 
 %parametre na menienie
-% where_to_store, attacks_folder, posun_dat
+% where_to_store, attacks_folder
 
 where_to_store = "C:\Users\patri\Documents\GitHub\MATLAB\Diplomka\MMRP\MMRP automated";
 attacks_folder = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\";
@@ -61,7 +61,6 @@ for p=1:9
         [~, folder_name, ~] = fileparts(file_path);
         full_folder_name = folder_name + "\" + num2str(average_multiplier) + " average_multiplier";
         folder_path = fullfile(where_to_store, full_folder_name);
-        
         if ~exist(folder_path, 'dir')
             mkdir(folder_path);
         end
@@ -73,11 +72,11 @@ for p=1:9
         [alfa, beta, n] = zisti_alf_bet(data,average_multiplier);
 
         %generovanie a samplovanie mmrp
-        mmrp_data = generate_mmrp(n*length(data),length(data),alfa,beta);
-        mmrp_sampled = sample_generated_data(mmrp_data, ceil(n*length(data)), ceil(n));
+        gen_data = generate_mmrp(n*length(data),length(data),alfa,beta);
+        gen_sampled = sample_generated_data(gen_data, ceil(n*length(data)), ceil(n));
         
-        lastNonZeroIndex = find(mmrp_sampled, 1, 'last');
-        mmrp_sampled = mmrp_sampled(1:lastNonZeroIndex);
+        lastNonZeroIndex = find(gen_sampled, 1, 'last');
+        gen_sampled = gen_sampled(1:lastNonZeroIndex);
 
 
 
@@ -87,7 +86,7 @@ for p=1:9
 
 
         % upravit Y axis pre plot
-        y_for_plot = max(max(data), max(mmrp_sampled));
+        y_for_plot = max(max(data), max(gen_sampled));
 
         fig = figure;
         subplot(4,1,1)
@@ -99,8 +98,8 @@ for p=1:9
         title(sprintf('Data od %d do %d z %s', from, to, folder_name));
     
         subplot(4,1,2)
-        plot(mmrp_sampled)
-        xlim([0, length(mmrp_sampled)])
+        plot(gen_sampled)
+        xlim([0, length(gen_sampled)])
         ylim([0, y_for_plot])
         xlabel("Čas")
         ylabel("Počet paketov");
@@ -113,7 +112,7 @@ for p=1:9
         title("Histogram dát")
     
         subplot(4,1,4)
-        hist_mmrp = histogram(mmrp_sampled, 'Normalization', 'probability','NumBins',hist_data.NumBins, 'BinEdges',hist_data.BinEdges);
+        hist_mmrp = histogram(gen_sampled, 'Normalization', 'probability','NumBins',hist_data.NumBins, 'BinEdges',hist_data.BinEdges);
         ylabel("Pravd.")
         xlabel("Triedy")
         title("Histogram MMRP")

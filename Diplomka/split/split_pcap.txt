@@ -1,0 +1,5 @@
+CMD
+
+"C:\Program Files\Wireshark\tshark.exe" -r "C:\Users\patri\Desktop\split\capDESKTOP-AN3U28N-172.31.64.17.pcap" -Y "frame.number >= 55000 && frame.number <= 210000" -w "C:\Users\patri\Desktop\split\output-temp.pcap"
+
+"C:\Program Files\Wireshark\tshark.exe" -F pcap -r "C:\Users\patri\Desktop\split\output-temp.pcap" -w "C:\Users\patri\Desktop\split\output.pcap"

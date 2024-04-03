@@ -3,9 +3,9 @@
 
 % vstup pcap
 
-folder_path = "C:\Users\patri\Desktop\diplomka\TIS\Po vybranych kuskoch\0504a_14307.csv";
+folder_path = "C:\Users\patri\Desktop\diplomka\Zaznamy\záznamy\Pcapy s protokolmi\TIS - po kuskoch\0504a_1427.csv";
 slot_window = 0.1;
-percent_to_keep_fft = 0.2;
+percent_to_keep_fft = 0.1;
 
 %M = readtable(folder_path);
 [~, folder_name, ~] = fileparts(folder_path);
@@ -23,7 +23,7 @@ cumulated_spaces = cumulate_spaces(medzery);
 
 % samplovanie kumulovanych medzier
 data_casy = cumulatedSpaces_to_casy(cumulated_spaces, slot_window);
-data_casy = data_casy(1:1400);
+%data_casy = data_casy(1:1400);
 
 % generate mmrp without fourier
 [alfa, beta, n] = zisti_alf_bet(data_casy);
@@ -161,7 +161,7 @@ end
 function [fourier_output, ca, c] = fourier_transform(data, percent_to_keep_fft)
     N = length(data);
     
-    c = fft(data) / N;
+    c = fft(data)./ N;
     ca = abs(c);
     ca(1) = 0;
     

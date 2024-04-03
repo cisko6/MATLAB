@@ -4,13 +4,13 @@
 
 % vstup kumulovane medzery
 
-%M = readtable("C:\Users\patri\Desktop\diplomka\TIS\Po vybranych kuskoch\0207_3051.csv");
+M = readtable("C:\Users\patri\Desktop\diplomka\Zaznamy\Ďalšie záznamy\Pcapy s protokolmi\TIS - po kuskoch\0605b_10582.csv");
 
 data_casy = M.Var6;
 n1 = numel(data_casy);
 
 %data_casy = data_casy(1:ceil(n1/10)); %0207
-%slot_window = 0.1;       %0207
+slot_window = 0.01;       %0207
 
 %data_casy = data_casy(500000:ceil(n1/6)); %0402
 %slot_window = 0.1;       %0402
@@ -35,7 +35,7 @@ n1 = numel(data_casy);
 %slot_window = 0.01;    %0605b
 
 %data_casy = data_casy(ceil(4*n1/32):ceil(6*n1/32)); %0701
-slot_window = 0.1;    %0701
+%slot_window = 0.1;    %0701
 
 sampled_data = sample_csv(data_casy, slot_window);
 

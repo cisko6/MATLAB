@@ -1,13 +1,13 @@
 
-%clear;clc
+clear;clc
 
 % vstup nekumulovane medzery - ignoruje nuly
 
-M = importdata("C:\Users\patri\Desktop\diplomka\TIS\Cele zaznamy\TIS medzery\nekumulovane medzery\0207.txt");
+M = importdata("C:\Users\patri\Desktop\diplomka\Zaznamy\záznamy\Real Utoky\Ver_data.txt");
 n1 = numel(M);
 data = M;
-data = M(1:ceil(n1/10)); %0207
-slot_window = 0.1;       %0207
+%data = M(1:ceil(n1/10)); %0207
+slot_window = 0.01;       %0207
 
 %data = M(500000:ceil(n1/6)); %0402
 %slot_window = 0.1;       %0402
