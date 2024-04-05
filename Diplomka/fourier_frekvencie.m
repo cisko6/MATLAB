@@ -1,39 +1,64 @@
-clear
 
-load("C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_2_d010.mat")
+clear;clc
+
+keep_frequencies = 3;
+load("C:\Users\patri\Desktop\mat subory\Attack_2_d005.mat")
+
 N = 1000;
 a = a(1:N);
 t = linspace(1,N,N);
-plot(t,a)
-ylim([-1000 1000])
-title("1")
-figure
-grid on
-c =fft(a)./N;
-%c(1)=0;
-ca = abs(c);
-y1 =    2*real(c(6))*cos(5*t*2*pi/N)-2*imag(c(6))*sin(5*t*2*pi/N)+c(1);
-y2 = y1+2*real(c(2))*cos(1*t*2*pi/N)-2*imag(c(2))*sin(1*t*2*pi/N);
-y3 = y2+2*real(c(7))*cos(6*t*2*pi/N)-2*imag(c(7))*sin(6*t*2*pi/N);
-plot(t,a,t,y1,'r-',t,y2,'g-',t,y3,'k-')
-ylim([-1000 1000])
-title("2")
-figure
-y=a-y3;
-plot(t,y)
-hold on 
-plot(t,a)
-ylim([-1000 1000])
-title("3")
+
+fourier_data = fourier_smooth(a, keep_frequencies);
+
+data = a(1:N);
+plot(t,data)
+title("t,data PRED")
+
+[data, ca] = fourier_smooth(data, keep_frequencies);
 
 figure
-y=a-y2;
-plot(t,y)
-ylim([-1000 1000])
-title("4")
+plot(t,data)
+title("t,data PO")
 
 figure
-y=a-y1;
-plot(t,y)
-ylim([-1000 1000])
-title("5")
+plot(t,a)
+title("t,a")
+
+figure
+plot(t,fourier_data)
+title("t,y")
+
+
+
+function [fourier_data, ca] = fourier_smooth(data, keep_frequencies)
+    
+    N = length(data);
+    t = linspace(1,N,N);
+
+    % fft
+    c =fft(data)./N;
+    c(1)=0;
+    ca = abs(c);
+    
+    % zisti najvacsie indexy
+    c_pom = c(1:length(c)/2);
+    biggest_indexes = zeros(1, keep_frequencies);
+    for i = 1:keep_frequencies
+        [~, index] = max(c_pom);
+        biggest_indexes(i) = index;
+        c_pom(index) = 0;
+    end
+    
+    % ponechaj iba par frekvencii
+    y_pom = 0;
+    for i = 1:keep_frequencies
+        y_final = y_pom + 2*real(c(biggest_indexes(i)))*cos((biggest_indexes(i)-1)*t*2*pi/N)-2*imag(c(biggest_indexes(i)))*sin((biggest_indexes(i)-1)*t*2*pi/N)+c(1);
+        y_pom = y_final;
+    end
+    
+    fourier_data = data-y_final;
+end
+
+
+
+

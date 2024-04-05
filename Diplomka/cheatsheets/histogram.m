@@ -28,3 +28,40 @@ ylim(hist_data.Parent, [0 y_for_hist])
 ylim(hist_mmrp.Parent, [0 y_for_hist])
 
 
+%%%%%%%%%%%% CELA UKAZKA PREMIOVA
+        ylim_hist = max( ...
+                    max(histcounts(data, 'Normalization', 'probability')), ...
+                    max(histcounts(gen_sampled, 'Normalization', 'probability')));
+        
+        if ylim_hist <= 0.1
+            ylim_hist = ylim_hist + 0.01;
+        elseif ylim_hist > 0.1 && ylim_hist < 0.5
+            ylim_hist = ylim_hist + 0.05;
+        else
+            ylim_hist = ylim_hist + 0.2;
+        end
+
+        figure12 = figure;
+        aa = histogram(data,'Normalization', 'probability');
+        ylim([0 ylim_hist])
+        title(sprintf('Hist data od %d do %d',1,posun_dat));
+        xlabel("Triedy")
+        ylabel("P");
+
+        figure13 = figure;
+        bb = histogram(gen_sampled,'Normalization', 'probability');
+        ylim([0 ylim_hist])
+        title(sprintf('Hist %s od %d do %d', simulacia,1,posun_dat));
+        xlabel("Triedy")
+        ylabel("P");
+        
+        % nastavenie X os pre histogramy
+        xlim_hist = max(max(aa.BinEdges),max(bb.BinEdges));
+        xlim(aa.Parent, [0 xlim_hist])
+        xlim(bb.Parent, [0 xlim_hist])
+
+        saveas(figure12,fullfile(simul_folder_path,sprintf('Hist data od %d do %d.fig', 1,posun_dat)));
+        saveas(figure12,fullfile(simul_folder_path,sprintf('Hist data od %d do %d.png', 1,posun_dat)));
+
+        saveas(figure13,fullfile(simul_folder_path,sprintf('Hist %s od %d do %d.fig', simulacia,1,posun_dat)));
+        saveas(figure13,fullfile(simul_folder_path,sprintf('Hist %s od %d do %d.png', simulacia,1,posun_dat)));
