@@ -3,36 +3,37 @@ clear
 
 % čo je okno?
 
-M = load('C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_1.mat');
-data = M.a;
-
-%load('C:\Users\patri\Downloads\Atack_3_1024.mat','nu')
-%data = nu  ;
+load('C:\Users\patri\Downloads\Atack_3_1024.mat','nu')
+data = nu;
 
 N  = length(data);  
-okno = 0; 
-rozsah = 512;
+predict_window = 512;
 
-
-for i=0:N-okno-rozsah-1
-    if mod(i,10000)==0
-       i;
-    end
-    mH(i+1) =     mean(data(1+i:rozsah+i));
-    sH(i+1) = sqrt(cov(data(1+i:rozsah+i)));
+k = 10; % nasobok sigmi
+for i=1:N-predict_window
+    [dH,hH] = vypocitaj_hranice_tunelu(data(i:predict_window+i),predict_window,k);
+    dH_final(i) = dH;
+    hH_final(i) = hH;
 end
-k = 3; % nasobok sigmi
-dH = mH - k*sH;
-hH = mH + k*sH;
 
-xx  = linspace(1,N,N);
-mxx = linspace(rozsah,N,N-okno-rozsah);
-plot(xx,data,mxx,dH,'r',mxx,hH,'r',0,1)
+t  = linspace(1,N,N);
+t2 = linspace(predict_window,N,N-predict_window);
+plot(t,data,t2,dH_final,'r',t2,hH_final,'r',0,1)
 
-%Hpred=data(rozsah+1:N);
-%dHpred = [ dH(1) dH(1:N-okno-rozsah-1)];
-%hHpred = [ hH(1) hH(1:N-okno-rozsah-1)];
-%mx2 = linspace(rozsah,N,N-okno-rozsah);
+
+%Hpred=data(predict_window+1:N);
+%dHpred = [ dH(1) dH(1:N-predict_window-1)];
+%hHpred = [ hH(1) hH(1:N-predict_window-1)];
+%mx2 = linspace(tunnel_window,N,N-okno-tunnel_window);
 %plot(mx2,Hpred-hHpred)
+
+function [dH,hH] = vypocitaj_hranice_tunelu(data,predict_window,k)
+    mH =     mean(data(1:predict_window));
+    sH = sqrt(cov(data(1:predict_window)));
+
+    dH = mH - k*sH;
+    hH = mH + k*sH;
+end
+
 
 

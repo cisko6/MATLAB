@@ -8,20 +8,10 @@ N = 1000;
 a = a(1:N);
 t = linspace(1,N,N);
 
-fourier_data = fourier_smooth(a, keep_frequencies);
-
-data = a(1:N);
-plot(t,data)
-title("t,data PRED")
-
-[data, ca] = fourier_smooth(data, keep_frequencies);
+[fourier_data, ca] = fourier_smooth(a, keep_frequencies);
 
 figure
-plot(t,data)
-title("t,data PO")
-
-figure
-plot(t,a)
+plot(t,a,t,ca)
 title("t,a")
 
 figure
@@ -30,7 +20,7 @@ title("t,y")
 
 
 
-function [fourier_data, ca] = fourier_smooth(data, keep_frequencies)
+function [fourier_data, y_final] = fourier_smooth(data, keep_frequencies)
     
     N = length(data);
     t = linspace(1,N,N);
@@ -57,6 +47,7 @@ function [fourier_data, ca] = fourier_smooth(data, keep_frequencies)
     end
     
     fourier_data = data-y_final;
+    y_final = y_final+mean(data);
 end
 
 

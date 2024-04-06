@@ -91,7 +91,7 @@ for j=1:9
             data = cely_tok(1:posun_dat);
     
             if use_fourier == "yes"
-                data = fourier_smooth(data, keep_frequencies);
+                [data, fft_frequency] = fourier_smooth(data, keep_frequencies);
             end
 
             if simulacia == "MMRP"
@@ -104,7 +104,7 @@ for j=1:9
 
             gen_sampled = sample_generated_data(gen_data, n, length(data));
 
-            % chi square test
+            % chi square test klzavo
             [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_square_test(cely_tok, gen_sampled, posun_dat, shift, pocet_tried_hist, chi_alfa);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -119,6 +119,8 @@ for j=1:9
             if use_fourier == "yes"
                 figure14 = figure;
                 plot(cely_tok(1:posun_dat));
+                hold on
+                plot(fft_frequency);
                 xlim([0 length(cely_tok(1:posun_dat))])
                 ylim([0 n])
                 title(sprintf('Data pred FFT od %d do %d',1,posun_dat));
@@ -261,13 +263,13 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [fourier_data, ca] = fourier_smooth(data, keep_frequencies)
+function [fourier_data, y_final] = fourier_smooth(data, keep_frequencies)
     
     N = length(data);
     t = linspace(1,N,N);
 
     % fft
-    c =fft(data)./N;
+    c = fft(data)./N;
     c(1)=0;
     ca = abs(c);
     
@@ -288,12 +290,15 @@ function [fourier_data, ca] = fourier_smooth(data, keep_frequencies)
     end
     
     fourier_data = data-y_final;
+    fourier_data(fourier_data < 0) = 0;
+    fourier_data = round(fourier_data);
+
+    y_final = y_final+mean(data);
 end
 
 function [alfa, beta, n] = MMRP_zisti_alfBet_peakIsChanged(data, average_multiplier)
-    % mean, max, ppeak
-    lambda_avg = mean(data);
 
+    lambda_avg = mean(data);
     max_data = max(data);
     n = round(average_multiplier * lambda_avg);
     if n > max_data
@@ -359,7 +364,7 @@ function [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsChanged(data, chi_alfa, a
     
         p_pom = p_pom + 0.001;
     end
-    
+    chi2_statistics = chi2_statistics(1:i-1);
     [~, index] = max(chi2_statistics);
     alfa = alfy(index);
     beta = bety(index);
@@ -474,7 +479,66 @@ function [chi2_stat, p_value, critical_value, df] = chi_square_test(obs1,obs2,ch
     critical_value = chi2inv(1 - chi_alfa, df);
 end
 
-function [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_square_test(cely_tok, gen_sampled, posun_dat, shift, pocet_tried_hist, chi_alfa)
+function [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_square_test(cely_tok, gen_sampled, posun_dat, shift, pocet_tried_hist, chi_alfa, use_fourier, keep_frequencies,simul_folder_path)
+
+    for k=2:9999999
+    
+        if ~mod(k,shift) == 0
+            continue
+        end
+    
+        from = k + shift - 1;
+        to = from + posun_dat - 1;
+        try
+            data = cely_tok(from:to);
+        catch
+            break
+        end
+    
+        if use_fourier == "yes"
+            data = fourier_smooth(data, keep_frequencies);
+        end
+
+        % chi kvadrat
+        data_chi = histcounts(data,pocet_tried_hist);
+        gen_chi = histcounts(gen_sampled, length(data_chi));
+
+        [chi2_stat, p_value, critical_value] = chi_square_test(data_chi,gen_chi,chi_alfa);
+    
+        chi2_stat_array(k-1) = chi2_stat;
+        p_value_array(k-1) = p_value;
+        critical_value_array(k-1) = critical_value;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        if k == 2
+            figure16 = figure('Visible', 'off');
+            histogram(gen_sampled,NumBins=pocet_tried_hist);
+            title(sprintf('Hist generated od %d do %d',1,posun_dat));
+            xlabel("Triedy")
+            ylabel("Počet paketov");
+    
+            saveas(figure16,fullfile(simul_folder_path,sprintf('Hist generated od %d do %d.fig',1,posun_dat)));
+            saveas(figure16,fullfile(simul_folder_path,sprintf('Hist generated od %d do %d.png',1,posun_dat)));
+        end
+
+        % už len save histogramov
+        if k == 2 || k == 3
+            figure15 = figure('Visible', 'off');
+            histogram(data,NumBins=pocet_tried_hist);
+            title(sprintf('Hist data od %d do %d.fig',from,to));
+            xlabel("Triedy")
+            ylabel("Počet paketov");
+
+            saveas(figure15,fullfile(simul_folder_path,sprintf('Hist data od %d do %d.fig',from,to)));
+            saveas(figure15,fullfile(simul_folder_path,sprintf('Hist data od %d do %d.png',from,to)));
+        end
+    end
+end
+
+%{
+% in case ze by nefungovalo to co som pridal
+
+function [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_square_test(cely_tok, gen_sampled, posun_dat, shift, pocet_tried_hist, chi_alfa, use_fourier, keep_frequencies)
 
     for k=2:9999999
     
@@ -483,13 +547,17 @@ function [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_squa
         end
     
         from = k + shift;
-        to = from + posun_dat;
+        to = from + posun_dat - 1;
         try
             data = cely_tok(from:to);
         catch
             break
         end
     
+        if use_fourier == "yes"
+            data = fourier_smooth(data, keep_frequencies);
+        end
+
         % chi kvadrat
         data_chi = histcounts(data,pocet_tried_hist);
         mmrp_chi = histcounts(gen_sampled, length(data_chi));
@@ -500,5 +568,5 @@ function [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_squa
         p_value_array(k-1) = p_value;
         critical_value_array(k-1) = critical_value;
     end
-
 end
+%}

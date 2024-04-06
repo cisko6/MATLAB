@@ -34,7 +34,6 @@ for j=1:1
         file_path = fullfile(attacks_folder, "Attack_8.mat");
     end
 
-
     for l=1:4
         if l == 1
             posun_dat = 500;
@@ -46,13 +45,31 @@ for j=1:1
             posun_dat = 2000;
         end
  
+        [~, folder_name, ~] = fileparts(file_path);
+        full_folder_name = folder_name + "\" + num2str(posun_dat) + " cw";
+        folder_path = fullfile(where_to_store, full_folder_name);
+        if ~exist(folder_path, 'dir')
+            mkdir(folder_path);
+        end
+        
+        simul_folder_name = folder_name + "\pociatocna_simulacia\"+ num2str(posun_dat) + " cw";
+        simul_folder_path = fullfile(where_to_store, simul_folder_name);
+        if ~exist(simul_folder_path, 'dir')
+            mkdir(simul_folder_path);
+        end
+
+
+
+
+
         M = load(file_path);
         cely_tok = M.a;
         data = cely_tok(1:posun_dat);
 
 
         if use_fourier == "yes"
-            data = fourier_smooth(data, keep_frequencies);
+            [fft_data, fft_frequency] = fourier_smooth(data, keep_frequencies);
+            data = fft_data;
         end
 
         if simulacia == "MMRP"
@@ -65,21 +82,14 @@ for j=1:1
 
         gen_sampled = sample_generated_data(gen_data, n, length(data));
 
-        % chi square test
-        [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_square_test(cely_tok, gen_sampled, posun_dat, shift, pocet_tried_hist, chi_alfa);
+        % chi square test klzavo
+        [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_square_test(cely_tok, gen_sampled, posun_dat, shift, pocet_tried_hist, chi_alfa, use_fourier, keep_frequencies, simul_folder_path);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        [~, folder_name, ~] = fileparts(file_path);
-        full_folder_name = folder_name + "\" + num2str(posun_dat) + " cw";
-        folder_path = fullfile(where_to_store, full_folder_name);
-        if ~exist(folder_path, 'dir')
-            mkdir(folder_path);
-        end
 
         % save cely utok
-        figall = figure;
+        figall = figure('Visible', 'off');
         plot(M.a);
         title(sprintf('Utok - %s', folder_name));
         cely_tok_path = fullfile(where_to_store, folder_name);
@@ -90,15 +100,11 @@ for j=1:1
         close(figall)
 
         % save simulaciu
-        simul_folder_name = folder_name + "\pociatocna_simulacia\"+ num2str(posun_dat) + " cw";
-        simul_folder_path = fullfile(where_to_store, simul_folder_name);
-        if ~exist(simul_folder_path, 'dir')
-            mkdir(simul_folder_path);
-        end
-
         if use_fourier == "yes"
-            figure14 = figure;
+            figure14 = figure('Visible', 'off');
             plot(cely_tok(1:posun_dat));
+            hold on
+            plot(fft_frequency);
             xlim([0 length(cely_tok(1:posun_dat))])
             ylim([0 n])
             title(sprintf('Data pred FFT od %d do %d',1,posun_dat));
@@ -109,7 +115,7 @@ for j=1:1
             saveas(figure14,fullfile(simul_folder_path,sprintf('Data pred FFT od %d do %d.png', 1,posun_dat)));
         end
 
-        figure10 = figure;
+        figure10 = figure('Visible', 'off');
         plot(data);
         xlim([0 length(data)])
         ylim([0 n])
@@ -129,7 +135,7 @@ for j=1:1
             saveas(figure10,fullfile(simul_folder_path,sprintf('Data od %d do %d.png', 1,posun_dat)));
         end
 
-        figure11 = figure;
+        figure11 = figure('Visible', 'off');
         plot(gen_sampled);
         xlim([0 length(gen_sampled)])
         ylim([0 n])
@@ -153,14 +159,14 @@ for j=1:1
             ylim_hist = ylim_hist + 0.2;
         end
 
-        figure12 = figure;
+        figure12 = figure('Visible', 'off');
         aa = histogram(data,'Normalization', 'probability');
         ylim([0 ylim_hist])
         title(sprintf('Hist data od %d do %d',1,posun_dat));
         xlabel("Triedy")
         ylabel("P");
 
-        figure13 = figure;
+        figure13 = figure('Visible', 'off');
         bb = histogram(gen_sampled,'Normalization', 'probability','NumBins',aa.NumBins);
         ylim([0 ylim_hist])
         title(sprintf('Hist %s od %d do %d', simulacia,1,posun_dat));
@@ -172,14 +178,14 @@ for j=1:1
         xlim(aa.Parent, [0 xlim_hist])
         xlim(bb.Parent, [0 xlim_hist])
 
-        saveas(figure12,fullfile(simul_folder_path,sprintf('Hist data od %d do %d.fig', 1,posun_dat)));
-        saveas(figure12,fullfile(simul_folder_path,sprintf('Hist data od %d do %d.png', 1,posun_dat)));
+        saveas(figure12,fullfile(simul_folder_path,sprintf('p_Hist data od %d do %d.fig', 1,posun_dat)));
+        saveas(figure12,fullfile(simul_folder_path,sprintf('p_Hist data od %d do %d.png', 1,posun_dat)));
 
-        saveas(figure13,fullfile(simul_folder_path,sprintf('Hist %s od %d do %d.fig', simulacia,1,posun_dat)));
-        saveas(figure13,fullfile(simul_folder_path,sprintf('Hist %s od %d do %d.png', simulacia,1,posun_dat)));
+        saveas(figure13,fullfile(simul_folder_path,sprintf('p_Hist %s od %d do %d.fig', simulacia,1,posun_dat)));
+        saveas(figure13,fullfile(simul_folder_path,sprintf('p_Hist %s od %d do %d.png', simulacia,1,posun_dat)));
 
         %%%
-        figure1 = figure;
+        figure1 = figure('Visible', 'off');
         plot(M.a)
         title("data")
         xlim([0 length(M.a)])
@@ -187,7 +193,7 @@ for j=1:1
         xlabel("Čas")
         ylabel("Počet paketov");
 
-        figure2 = figure;
+        figure2 = figure('Visible', 'off');
         x = posun_dat:(posun_dat + length(critical_value_array) - 1);
         plot(x,critical_value_array,'r');
         hold on
@@ -198,7 +204,7 @@ for j=1:1
         legend("critical value","chi2stat");
         title("critical value, chi2stat");
         
-        figure3 = figure;
+        figure3 = figure('Visible', 'off');
         chi_alfa_plot(1:length(p_value_array)) = chi_alfa;
         x = posun_dat:(posun_dat + length(chi_alfa_plot) - 1);
         plot(x,chi_alfa_plot,'m');
@@ -241,13 +247,13 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [fourier_data, ca] = fourier_smooth(data, keep_frequencies)
+function [fourier_data, y_final] = fourier_smooth(data, keep_frequencies)
     
     N = length(data);
     t = linspace(1,N,N);
 
     % fft
-    c =fft(data)./N;
+    c = fft(data)./N;
     c(1)=0;
     ca = abs(c);
     
@@ -268,9 +274,13 @@ function [fourier_data, ca] = fourier_smooth(data, keep_frequencies)
     end
     
     fourier_data = data-y_final;
+    fourier_data(fourier_data < 0) = 0;
+    fourier_data = round(fourier_data);
+
+    y_final = y_final+mean(data);
 end
 
-function [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_square_test(cely_tok, gen_sampled, posun_dat, shift, pocet_tried_hist, chi_alfa)
+function [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_square_test(cely_tok, gen_sampled, posun_dat, shift, pocet_tried_hist, chi_alfa, use_fourier, keep_frequencies,simul_folder_path)
 
     for k=2:9999999
     
@@ -278,31 +288,60 @@ function [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_squa
             continue
         end
     
-        from = k + shift;
-        to = from + posun_dat;
+        from = k + shift - 1;
+        to = from + posun_dat - 1;
         try
             data = cely_tok(from:to);
         catch
             break
         end
     
+        if use_fourier == "yes"
+            data = fourier_smooth(data, keep_frequencies);
+        end
+
         % chi kvadrat
         data_chi = histcounts(data,pocet_tried_hist);
-        mmrp_chi = histcounts(gen_sampled, length(data_chi));
+        gen_chi = histcounts(gen_sampled, length(data_chi));
 
-        [chi2_stat, p_value, critical_value] = chi_square_test(data_chi,mmrp_chi,chi_alfa);
+        [chi2_stat, p_value, critical_value] = chi_square_test(data_chi,gen_chi,chi_alfa);
     
         chi2_stat_array(k-1) = chi2_stat;
         p_value_array(k-1) = p_value;
         critical_value_array(k-1) = critical_value;
-    end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+        if k == 2
+            figure16 = figure('Visible', 'off');
+            histogram(gen_sampled,NumBins=pocet_tried_hist);
+            title(sprintf('Hist generated od %d do %d',1,posun_dat));
+            xlabel("Triedy")
+            ylabel("Počet paketov");
+    
+            saveas(figure16,fullfile(simul_folder_path,sprintf('Hist generated od %d do %d.fig',1,posun_dat)));
+            saveas(figure16,fullfile(simul_folder_path,sprintf('Hist generated od %d do %d.png',1,posun_dat)));
+        end
+
+        % už len save histogramov
+        if k == 2 || k == 3
+            figure15 = figure('Visible', 'off');
+            histogram(data,NumBins=pocet_tried_hist);
+            title(sprintf('Hist data od %d do %d.fig',from,to));
+            xlabel("Triedy")
+            ylabel("Počet paketov");
+
+            saveas(figure15,fullfile(simul_folder_path,sprintf('Hist data od %d do %d.fig',from,to)));
+            saveas(figure15,fullfile(simul_folder_path,sprintf('Hist data od %d do %d.png',from,to)));
+        end
+    end
 end
 
 function [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsMax(data, chi_alfa)
-    % zistenie n, lambda_avg, ppeak
+
     n = ceil(max(data));
     lambda_avg = mean(data);
+
+
     peak = numel(find(data==n));
     if peak == 0
         peak = 1;
@@ -340,8 +379,8 @@ function [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsMax(data, chi_alfa)
     
         p_pom = p_pom + 0.001;
     end
-    
-    [~, index] = max(chi2_statistics);
+    chi2_statistics = chi2_statistics(1:i-1);
+    [~, index] = max(chi2_statistics); %%%%%%%% MIN MAX
     alfa = alfy(index);
     beta = bety(index);
     p = p_pravdepodobnosti(index);
