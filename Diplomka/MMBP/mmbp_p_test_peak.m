@@ -3,6 +3,7 @@ clc
 clear
 
 chi_alfa = 0.05;
+pocet_tried_hist = 10;
 
 alfa = 0.1;
 beta = 0.3;
@@ -13,14 +14,14 @@ pocet_generovanych = 10000;
 stav = 1;
 
 
-for i=1:10
-    data = (1:1250);
+for i=1:1
+    data = (1:125000);
     % generovanie dát
     mmbp_data = generate_mmbp(n,length(data),alfa,beta,p);
     % samplovanie dat
     sampled_mmbp_data = sample_generated_data(mmbp_data, n, length(data));
     % zisti alf,bet,p
-    [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsMax(sampled_mmbp_data, chi_alfa);
+    [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsMax(sampled_mmbp_data, chi_alfa,pocet_tried_hist);
     
     vysledne_p_max(i) = p;
 end
@@ -34,11 +35,7 @@ disp(mean(vysledne_p_max))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsMax(data, chi_alfa)
-
-    % kvoli furierke
-    data(data < 0) = 0;
-    data = round(data);
+function [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsMax(data, chi_alfa,pocet_tried_hist)
 
     n = ceil(max(data));
     lambda_avg = mean(data);
@@ -58,10 +55,6 @@ function [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsMax(data, chi_alfa)
     for i=1:99999
     
         if p_pom > 1
-            %if i == 1
-            %    p_pom = 0.900; %%%%% ??
-            %    continue
-            %end
             break
         end
     
@@ -71,8 +64,9 @@ function [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsMax(data, chi_alfa)
         % generovanie a samplovanie dat
         pom_mmbp = generate_mmbp(n,length(data),alfa_pom,beta_pom,p_pom);
         pom_samped_mmbp = sample_generated_data(pom_mmbp, n, length(data));
+
         % zistenie chi statistiky
-        [chi2_stat] = chi_square_test(pom_samped_mmbp,data,chi_alfa);
+        [chi2_stat] = chi_square_test(pom_samped_mmbp,data,chi_alfa,pocet_tried_hist);
     
         chi2_statistics(i) = chi2_stat;
         alfy(i) = alfa_pom;
@@ -82,7 +76,7 @@ function [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsMax(data, chi_alfa)
         p_pom = p_pom + 0.001;
     end
     chi2_statistics = chi2_statistics(1:i-1);
-    [~, index] = max(chi2_statistics);
+    [~, index] = min(chi2_statistics); %%%%%%%% MIN MAX
     alfa = alfy(index);
     beta = bety(index);
     p = p_pravdepodobnosti(index);
@@ -145,9 +139,13 @@ function [sampled_data] = sample_generated_data(data, n, dlzka_dat)
     sampled_data = sampled_data(1:dlzka_dat);
 end
 
-function [chi2_stat, p_value, critical_value, df] = chi_square_test(obs1,obs2,chi_alfa)
+function [chi2_stat, p_value, critical_value, df] = chi_square_test(obs1,obs2,chi_alfa,pocet_tried_hist)
 
-    obs = [obs1; obs2];
+    % chi kvadrat
+    obs1_counts = histcounts(obs1,pocet_tried_hist);
+    obs2_counts = histcounts(obs2, length(obs1_counts));
+
+    obs = [obs1_counts; obs2_counts];
 
     row_totals = sum(obs, 2);
     column_totals = sum(obs, 1);

@@ -37,12 +37,12 @@ slot_window = 0.01;       %0207
 %data_casy = data_casy(ceil(4*n1/32):ceil(6*n1/32)); %0701
 %slot_window = 0.1;    %0701
 
-sampled_data = sample_csv(data_casy, slot_window);
+sampled_data = sample_csvPcap(data_casy, slot_window);
 
 plot(sampled_data)
 
 
-function sampled_data = sample_csv(data_casy, slot_window)
+function sampled_data = sample_csvPcap(data_casy, slot_window)
     tStart = min(data_casy);
     tEnd = max(data_casy);
     

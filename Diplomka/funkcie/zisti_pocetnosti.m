@@ -1,24 +1,4 @@
 
-clc
-clear
-
-% vyskusajte na 10000 0/1 z Bernouliho p = 0.7, stredna hodnota musi byt
-% priblizne ET = 3/7, diperzia 3/49?
-pocet_generovanych = 1000;
-p = 0.7;
-max_hodnota = 1;
-
-%generuj bernoulli
-data = binornd(max_hodnota,p,1,pocet_generovanych);
-%data = [1,0,1,0,0,1,1,0];
-
-vysl = zisti_pocetnosti(data);
-disp(vysl)
-
-
-
-
-
 function vysl = zisti_pocetnosti(data)
     % zistenie početnost núl 0 00 000
     zeroLengths = [];
@@ -52,4 +32,3 @@ function vysl = zisti_pocetnosti(data)
     end
     vysl(1) = count;
 end
-
