@@ -8,32 +8,30 @@ where_to_store = "C:\Users\patri\Documents\GitHub\MATLAB\Diplomka\Automated\avg,
 attacks_folder_mat = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\";
 shift = 1;
 chi_alfa = 0.05;
-pocet_tried_hist = 36;
+pocet_tried_hist = 20;
 simulacia = "MMRP"; % MMRP, MMBP
-use_fourier = "yes"; % yes, default=no
+use_fourier = "no"; % yes, default=no
 keep_frequencies = 3;
 slot_window = 0.01;
 predict_window = 1000;
 
-for j=2:2
+for j=1:1
     if j == 1
-        file_path = fullfile(attacks_folder_mat, "Attack_1.mat");
+        file_path = fullfile(attacks_folder_mat, "Attack_2_d010.mat");
     elseif j == 2
-        file_path = "C:\Users\patri\Desktop\mat subory\Attack_2_d005.mat";
-        %file_path = fullfile(attacks_folder_mat, "Attack_2_d010.mat");
-    elseif j == 3
+        %file_path = "C:\Users\patri\Desktop\mat subory\Attack_2_d005.mat";
         file_path = fullfile(attacks_folder_mat, "Attack_3_d010.mat");
-    elseif j == 4
+    elseif j == 3
         file_path = fullfile(attacks_folder_mat, "Attack_4_d0001.mat");
-    elseif j == 5
+    elseif j == 4
         file_path = fullfile(attacks_folder_mat, "Attack_5_v1.mat");
-    elseif j == 6
+    elseif j == 5
         file_path = fullfile(attacks_folder_mat, "Attack_5_v2.mat");
-    elseif j == 7
+    elseif j == 6
         file_path = fullfile(attacks_folder_mat, "Attack_6.mat");
-    elseif j == 8
+    elseif j == 7
         file_path = fullfile(attacks_folder_mat, "Attack_7.mat");
-    elseif j == 9
+    elseif j == 8
         file_path = fullfile(attacks_folder_mat, "Attack_8.mat");
     end
     
@@ -93,14 +91,12 @@ for j=2:2
     end
 
 
-    for l=1:4
+    for l=1:3
         if l == 1
             compute_window = 1000;
         elseif l == 2
-            compute_window = 500;
-        elseif l == 3
             compute_window = 1500;
-        elseif l == 4
+        elseif l == 3
             compute_window = 2000;
         end
  
@@ -138,13 +134,14 @@ for j=2:2
             gen_data = generate_mmbp(n,length(data),alfa,beta,p);
         end
 
-        gen_sampled = sample_generated_data(gen_data, n, length(data));
+        gen_sampled = sample_generated_data(gen_data, n);
 
         % chi square test klzavo
         [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_square_test_peakMax(cely_tok, gen_sampled, compute_window, shift, pocet_tried_hist, chi_alfa, use_fourier, keep_frequencies, simul_folder_path);
 
+        %{
         %%%% TUNEL %%%%
-        for r=1:1
+        for r=1:2
             if r == 1
                 sigma_nasobok = 2;
             elseif r == 2
@@ -160,28 +157,30 @@ for j=2:2
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
             % save tunel
-            tunel_folder_name = folder_name + "\" + num2str(compute_window) + " cw\tunel\"+ num2str(sigma_nasobok)+" sigma nasobok";
-            tunel_folder_path = fullfile(where_to_store, tunel_folder_name);
-            if ~exist(tunel_folder_path, 'dir')
-                mkdir(tunel_folder_path);
-            end
+            %tunel_folder_name = folder_name + "\" + num2str(compute_window) + " cw\tunel\"+ num2str(sigma_nasobok)+" sigma nasobok";
+            %tunel_folder_path = fullfile(where_to_store, tunel_folder_name);
+            %if ~exist(tunel_folder_path, 'dir')
+            %    mkdir(tunel_folder_path);
+            %end
 
             figtunel = figure('Visible', 'off');
             t = linspace(compute_window,Ntunel+predict_window+compute_window-1,Ntunel);
             t2 = linspace(compute_window+predict_window+1,Ntunel+predict_window+compute_window-1,Ntunel-predict_window);
             t3 = linspace(0,Ntunel+compute_window-1,Ntunel+compute_window);
             plot(t3,0,t,chi2_stat_array,'b',t2,dH,'r',t2,hH,'r')
+            grid on
             title(sprintf("Tunel, sigma=%d",sigma_nasobok));
     
-            saveas(figtunel,fullfile(tunel_folder_name,sprintf('TUNEL, compute_window=%d, predict_window=%d.fig',compute_window,predict_window)));
-            saveas(figtunel,fullfile(tunel_folder_name,sprintf('TUNEL, compute_window=%d, predict_window=%d.png',compute_window,predict_window)));
+            saveas(figtunel,fullfile(tunel_folder_name,sprintf('TUNEL, sigma=%d ,compute_window=%d, predict_window=%d.fig',sigma_nasobok,compute_window,predict_window)));
+            saveas(figtunel,fullfile(tunel_folder_name,sprintf('TUNEL, sigma=%d , compute_window=%d, predict_window=%d.png',sigma_nasobok,compute_window,predict_window)));
             close(figtunel)
         end
- 
+        %}
 
         % save cely utok
         figall = figure('Visible', 'off');
         plot(cely_tok);
+        grid on
         title(sprintf('Utok - %s', folder_name));
         cely_tok_path = fullfile(where_to_store, folder_name);
         if ~exist(sprintf("%s/Cely_utok.png",cely_tok_path), 'file')
@@ -194,6 +193,7 @@ for j=2:2
         if use_fourier == "yes"
             figure14 = figure('Visible', 'off');
             plot(cely_tok(1:compute_window));
+            grid on
             hold on
             plot(fft_frequency);
             xlim([0 length(cely_tok(1:compute_window))])
@@ -210,6 +210,7 @@ for j=2:2
         plot(data);
         xlim([0 length(data)])
         ylim([0 n])
+        grid on
         if use_fourier == "yes"
             title(sprintf('Data po FFT od %d do %d',1,compute_window));
         else
@@ -230,6 +231,7 @@ for j=2:2
         plot(gen_sampled);
         xlim([0 length(gen_sampled)])
         ylim([0 n])
+        grid on
         title(sprintf('%s od %d do %d', simulacia,1,compute_window));
         legend(sprintf('%s', simulacia));
         xlabel("Čas")
@@ -254,6 +256,7 @@ for j=2:2
         figure12 = figure('Visible', 'off');
         aa = histogram(data,'Normalization', 'probability');
         ylim([0 ylim_hist])
+        grid on
         title(sprintf('Hist data od %d do %d',1,compute_window));
         xlabel("Triedy")
         ylabel("P");
@@ -261,6 +264,7 @@ for j=2:2
         figure13 = figure('Visible', 'off');
         bb = histogram(gen_sampled,'Normalization', 'probability','NumBins',aa.NumBins);
         ylim([0 ylim_hist])
+        grid on
         title(sprintf('Hist %s od %d do %d', simulacia,1,compute_window));
         xlabel("Triedy")
         ylabel("P");
@@ -283,6 +287,7 @@ for j=2:2
         plot(cely_tok)
         title("data")
         xlim([0 length(cely_tok)])
+        grid on
         legend("data");
         xlabel("Čas")
         ylabel("Počet paketov");
@@ -290,6 +295,7 @@ for j=2:2
         figure2 = figure('Visible', 'off');
         x = compute_window:(compute_window + length(critical_value_array) - 1);
         plot(x,critical_value_array,'r');
+        grid on
         hold on
         plot(x,chi2_stat_array,'b');
         xlabel("Čas")
@@ -303,6 +309,7 @@ for j=2:2
         x = compute_window:(compute_window + length(chi_alfa_plot) - 1);
         plot(x,chi_alfa_plot,'m');
         hold on
+        grid on
         startIdx = 1;
         for i = 2:length(p_value_array)
             if (i == length(p_value_array)) || (p_value_array(i) == 0 && p_value_array(i+1) ~= 0) || (p_value_array(i) ~= 0 && p_value_array(i+1) == 0)

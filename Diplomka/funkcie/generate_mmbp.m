@@ -1,9 +1,9 @@
 
 
-function [mmbp_data] = generate_mmbp(n,dlzka_dat, alfa,beta,p)
+function [mmbp_bits] = generate_mmbp(n,dlzka_dat, alfa,beta,p)
     
     pocet_bitov = n * dlzka_dat;
-    mmbp_data = zeros(1,ceil(dlzka_dat));
+    mmbp_bits = zeros(1,ceil(dlzka_dat));
     stav = 1;
 
     counter_one = 0;
@@ -13,10 +13,10 @@ function [mmbp_data] = generate_mmbp(n,dlzka_dat, alfa,beta,p)
         if stav == 1
             pravd_p = 1.*rand();
             if pravd_p <= p     % mmbp parameter pravdepodobnosti na 1
-                mmbp_data(i) = 1;
+                mmbp_bits(i) = 1;
                 counter_one = counter_one + 1;
             else
-                mmbp_data(i) = 0;
+                mmbp_bits(i) = 0;
                 counter_zero = counter_zero + 1;
             end
     
@@ -26,7 +26,7 @@ function [mmbp_data] = generate_mmbp(n,dlzka_dat, alfa,beta,p)
                 stav = 0;
             end
         else
-            mmbp_data(i) = 0;
+            mmbp_bits(i) = 0;
             counter_zero = counter_zero + 1;
     
             % či sa mení stav
@@ -36,5 +36,5 @@ function [mmbp_data] = generate_mmbp(n,dlzka_dat, alfa,beta,p)
             end
         end
     end
-    mmbp_data = mmbp_data(1:find(mmbp_data, 1, 'last'));
+    mmbp_bits = mmbp_bits(1:find(mmbp_bits, 1, 'last'));
 end

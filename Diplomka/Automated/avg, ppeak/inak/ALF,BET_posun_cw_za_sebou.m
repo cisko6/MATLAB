@@ -7,7 +7,7 @@ clc
 where_to_store = "C:\Users\patri\Documents\GitHub\MATLAB\Diplomka\Automated\inak\Simul po kúskoch";
 attacks_folder = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\";
 
-for p=1:9
+for p=1:1
     if p == 1
         file_path = fullfile(attacks_folder, "Attack_1.mat");
     elseif p == 2
@@ -59,7 +59,7 @@ for p=1:9
         end
         close(figall)
         
-        for k=1:999 % počet posunov
+        for k=1:999999 % počet posunov
         
             data = M.a;
         

@@ -1,6 +1,6 @@
 
-function [ET,ET2] = zisti_et_from_bits(mmrp_bits)
-    pocetnosti = zisti_pocetnosti(mmrp_bits);
+function [ET,ET2] = zisti_et_from_bits(data)
+    pocetnosti = zisti_pocetnosti(data);
     N = sum(pocetnosti);
     ET = 0;
     ET2 = 0;

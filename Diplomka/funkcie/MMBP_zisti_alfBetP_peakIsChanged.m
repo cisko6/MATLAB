@@ -1,3 +1,5 @@
+
+
 function [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsChanged(data, chi_alfa, average_multiplier,pocet_tried_hist)
     % zistenie n, lambda_avg, ppeak
     lambda_avg = mean(data);
@@ -18,7 +20,7 @@ function [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsChanged(data, chi_alfa, a
     chi2_statistics = zeros(1,9999); alfy = zeros(1,9999); bety = zeros(1,9999); p_pravdepodobnosti = zeros(1,9999);
 
     spodna_hranica_p = (ppeak*n/lambda_avg)^(1/(n-1));
-    p_pom = spodna_hranica_p + 0.001;
+    p_pom = spodna_hranica_p + 0.0001;
     for i=1:99999
     
         if p_pom > 1
@@ -30,7 +32,7 @@ function [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsChanged(data, chi_alfa, a
     
         % generovanie a samplovanie dat
         pom_mmbp = generate_mmbp(n,length(data),alfa_pom,beta_pom,p_pom);
-        pom_samped_mmbp = sample_generated_data(pom_mmbp, n, length(data));
+        pom_samped_mmbp = sample_generated_data(pom_mmbp, n);
         % zistenie chi statistiky
         [chi2_stat] = chi_square_test(pom_samped_mmbp,data,chi_alfa,pocet_tried_hist);
     
@@ -39,7 +41,7 @@ function [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsChanged(data, chi_alfa, a
         bety(i) = beta_pom;
         p_pravdepodobnosti(i) = p_pom;
     
-        p_pom = p_pom + 0.001;
+        p_pom = p_pom + 0.0001;
     end
     chi2_statistics = chi2_statistics(1:i-1);
     [~, index] = min(chi2_statistics);
