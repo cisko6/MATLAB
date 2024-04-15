@@ -10,7 +10,7 @@ function [statistika_array, dolne_hranice, horne_hranice, index_H] = vytvor_auto
     dolne_hranice = zeros(1,N);
     horne_hranice = zeros(1,N);
     % vypocitanie prvych chi od 1 do 1000 a prvu hranicu tunelu
-    for u=1:compute_window
+    for u=1:predict_window
         from = u;
         to = from + predict_window - 1;
 
