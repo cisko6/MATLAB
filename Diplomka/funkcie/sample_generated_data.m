@@ -8,8 +8,6 @@ function [sampled_data] = sample_generated_data(data_bits, N)
     try
         pom_sum = sum(data_bits(1:N));
     catch
-        fprintf("CATCH: sample_generated_data - pom_sum\n");
-        disp(data_bits);
         return
     end
     sampled_data(1) = pom_sum;
@@ -22,6 +20,5 @@ function [sampled_data] = sample_generated_data(data_bits, N)
         end
         sampled_data(i+1) = pom_sum;
     end
-    %sampled_data = sampled_data(1:dlzka_dat);
     sampled_data = sampled_data(1:find(sampled_data, 1, 'last'));
 end

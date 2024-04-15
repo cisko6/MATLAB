@@ -10,12 +10,12 @@ shift = 1;
 chi_alfa = 0.05;
 pocet_tried_hist = 20;
 simulacia = "MMRP"; % MMRP, MMBP
-use_fourier = "yes"; % yes, default=no
+use_fourier = "no"; % yes, default=no
 keep_frequencies = 3;
 slot_window = 0.01;
 predict_window = 1000;
 
-for j=1:8
+for j=1:1
     if j == 1
         file_path = fullfile(attacks_folder_mat, "Attack_2_d010.mat");
     elseif j == 2
@@ -75,7 +75,7 @@ for j=1:8
             gen_data = generate_mmbp(n,length(data),alfa,beta,p);
         end
 
-        gen_sampled = sample_generated_data(gen_data, n, length(data));
+        gen_sampled = sample_generated_data(gen_data, n);
 
 
         % CHILL SO FAR
@@ -114,7 +114,7 @@ for j=1:8
             saveas(figure14,fullfile(simul_folder_path,sprintf('Data pred FFT od %d do %d.png', 1,compute_window)));
         end
 
-        figure10 = figure('Visible', 'off');
+        figure10 = figure;
         plot(data);
         grid on
         xlim([0 length(data)])
@@ -135,7 +135,7 @@ for j=1:8
             saveas(figure10,fullfile(simul_folder_path,sprintf('Data od %d do %d.png', 1,compute_window)));
         end
 
-        figure11 = figure('Visible', 'off');
+        figure11 = figure;
         plot(gen_sampled);
         xlim([0 length(gen_sampled)])
         ylim([0 n])
@@ -149,14 +149,18 @@ for j=1:8
         close(figure11)
 
 
-        figure12 = figure('Visible', 'off');
+        figure12 = figure;
         h1 = histcounts(data,pocet_tried_hist);
         h2 = histcounts(gen_sampled,pocet_tried_hist);
         plot(h1,'*-')
         hold on
         plot(h2,'*-')
         grid on
-        title(sprintf('Hist Data a %s, od %d do %d', simulacia,1,compute_window));
+        if use_fourier == "yes"
+            title('FFT PEAK MAX');
+        else
+            title('PEAK MAX');
+        end
         xlabel("Triedy")
         ylabel("Počet paketov");
         legend("data",sprintf("%s",simulacia))

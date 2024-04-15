@@ -2,56 +2,38 @@
 clear;clc
 addpath('C:\Users\patri\Documents\GitHub\MATLAB\Diplomka\funkcie');
 
-M = load("C:\Users\patri\Downloads\a080203.mat");
+%M = load("C:\Users\patri\Downloads\a080203.mat");
+N = 20;
+dlzka_dat = 10000;
+alfa = 0.2;
+beta = 0.3;
+p = 0.8;
 chi_alfa = 0.05;
 pocet_tried_hist = 10;
+pocet_generovanych = dlzka_dat * N;
 
-mmbp_bits = generate_mmbp(M.NN,M.Mx, M.alf,M.bet,M.p);
-mmbp_data = sample_generated_data(mmbp_bits, M.NN, M.Mx);
+fprintf("Pôvodné hodnoty:\n");
+fprintf("alfa: %.5f\n",alfa);
+fprintf("beta: %.5f\n",beta);
+fprintf("p:    %.5f\n\n",p);
 
-[alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsMax(mmbp_data, chi_alfa,pocet_tried_hist);
+mmbp_bits = generate_mmbp(N,dlzka_dat, alfa,beta,p);
+mmbp_data = sample_generated_data(mmbp_bits, N);
 
-fprintf("alfa je: %.5f\n",alfa);
-fprintf("beta je: %.5f\n",beta);
-fprintf("p je:    %.5f\n",p);
-fprintf("priemer: %.5f\n\n",mean(mmbp_data));
+[alfa2, beta2, p2, n] = MMBP_zisti_alfBetP_peakIsMax(mmbp_data, chi_alfa,pocet_tried_hist);
 
-[ET,ET2] = zisti_et_from_bits(M.ab);
+fprintf("Vypočítané z intenzít:\n");
+fprintf("alfa cez intenzity: %.5f\n",alfa2);
+fprintf("beta cez intenzity: %.5f\n",beta2);
+fprintf("p cez intenzity:    %.5f\n\n",p2);
 
-% zistenie p, alf, bet
-spodna_hranica_p = 1/(1+ET);
-spodna_hranica_p_2 = (ET2 + ET) / (2 * (1 + ET)^2);
+[ET,ET2] = zisti_et_from_bits(mmbp_bits);
+[alfa3,beta3,p3] = MMBP_zisti_alfBetP_z_medzier(mmbp_bits,ET,ET2,dlzka_dat,N,chi_alfa,pocet_tried_hist);
 
-p_pom = max(spodna_hranica_p,spodna_hranica_p_2) + 0.0001;
-for i=1:9999999
-    if p_pom > 1
-        break
-    end
-
-    alfa_pom = (2 * (ET * p_pom + p_pom - 1)^2) / (ET2 * p_pom - 2 * (ET + 1)^2 * p_pom * (1 - p_pom) + ET * p_pom);
-    beta_pom = (2 * (ET * p_pom + p_pom - 1))   / (ET2 * p_pom - 2 * (ET + 1)^2 * p_pom * (1 - p_pom) + ET * p_pom);
-    %alfa_pom = beta_pom * (ET*p_pom + p_pom - 1);
-
-    pom_mmbp = generate_mmbp(n,M.Mx,alfa_pom,beta_pom,p_pom);
-    [chi2_stat] = chi_square_test(pom_mmbp,mmbp_bits,chi_alfa,pocet_tried_hist);
-
-    chi2_statistics(i) = chi2_stat;
-    alfy(i) = alfa_pom;
-    bety(i) = beta_pom;
-    p_pravdepodobnosti(i) = p_pom;
-
-    p_pom = p_pom + 0.0001;
-end
-
-chi2_statistics = chi2_statistics(1:i-1);
-[~, index] = min(chi2_statistics);
-alfa2 = alfy(index);
-beta2 = bety(index);
-p2 = p_pravdepodobnosti(index);
-
-fprintf("alfa cez ET je: %.5f\n",alfa2);
-fprintf("beta cez ET je: %.5f\n",beta2);
-fprintf("p cez ET je:    %.5f\n",p2);
+fprintf("Vypočítané z medzier:\n");
+fprintf("alfa: %.5f\n",alfa3);
+fprintf("beta: %.5f\n",beta3);
+fprintf("p:    %.5f\n",p3);
 
 % pocet_tried_hist = 3 hups
 % PRVY OUTPUT

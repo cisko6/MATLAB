@@ -1,35 +1,6 @@
 
 
-function [statistika_array, dolne_hranice, horne_hranice, index_H] = vytvor_autonomny_tunel(cely_tok,gen_prve_cw, compute_window,predict_window,typ_statistiky,chi_alfa,pocet_tried_hist,sigma_nasobok)
-   
-
-    %{
-function [statistika_array, dolne_hranice, horne_hranice, index_H] = vytvor_autonomny_tunel(data,compute_window,predict_window, simulacia,typ_statistiky,typ_peaku,average_multiplier,chi_alfa,pocet_tried_hist,sigma_nasobok)
-
-    if simulacia == "MMRP"
-        % pre prvu 1000
-        data_mmrp = data(1:compute_window);
-        if typ_peaku == "max"
-            [alfa, beta, n] = MMRP_zisti_alfBet_peakIsMax(data_mmrp);
-        elseif typ_peaku == "changed"
-            [alfa, beta, n] = MMRP_zisti_alfBet_peakIsChanged(data, average_multiplier);
-        end
-        gen_bits = generate_mmrp(n,length(data_mmrp),alfa,beta);
-        gen_sampled = sample_generated_data(gen_bits, n);
-
-        elseif simulacia == "MMBP"
-        % pre prvu 1000
-        data_mmbp = data(1:compute_window);
-        if typ_peaku == "max"
-            [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsMax(data, chi_alfa,pocet_tried_hist);
-        elseif typ_peaku == "changed"
-            [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsChanged(data, chi_alfa, average_multiplier,pocet_tried_hist);
-        end
-        gen_bits = generate_mmbp(n,length(data_mmbp), alfa,beta,p);
-        gen_sampled = sample_generated_data(gen_bits, n);
-    end
-    %}
-
+function [statistika_array, dolne_hranice, horne_hranice, index_H] = vytvor_lenivy_tunel(cely_tok,gen_prve_cw, compute_window,predict_window,typ_statistiky,chi_alfa,pocet_tried_hist,sigma_nasobok)
     N = length(cely_tok);
     statistika_array = zeros(1,N);
     dolne_hranice = zeros(1,N);
@@ -40,7 +11,9 @@ function [statistika_array, dolne_hranice, horne_hranice, index_H] = vytvor_auto
         to = from + predict_window - 1;
         cast_dat = cely_tok(from:to);
         if typ_statistiky == "chi"
-            [vysl] = chi_square_test(gen_prve_cw,cast_dat,chi_alfa,pocet_tried_hist);
+            [vysl] = chi_square_test(cast_dat,gen_prve_cw,chi_alfa,pocet_tried_hist);
+        elseif typ_statistiky == "dkl"
+            [vysl] = divergencia(cast_dat,gen_prve_cw);
         end
         statistika_array(u) = vysl;
     end
@@ -66,11 +39,13 @@ function [statistika_array, dolne_hranice, horne_hranice, index_H] = vytvor_auto
 
         if typ_statistiky == "chi"
             [vysl] = chi_square_test(cast_dat,gen_prve_cw,chi_alfa,pocet_tried_hist);
+        elseif typ_statistiky == "dkl"
+            [vysl] = divergencia(cast_dat,gen_prve_cw);
         end
     
         statistika_array(u+predict_window) = vysl;
     
-        if vysl > horne_hranice(index_H)
+        %if vysl > horne_hranice(index_H)
             %fprintf("Horna hranica prekrocena na %d\n",u+compute_window)
 
 
@@ -80,9 +55,9 @@ function [statistika_array, dolne_hranice, horne_hranice, index_H] = vytvor_auto
              %   fprintf("Horna hranica prekrocena na %d\n",u)
             %    break
             %end
-        end
+        %end
     
-        if vysl < dolne_hranice(index_H)
+        %if vysl < dolne_hranice(index_H)
             %fprintf("Dolna hranica prekrocena na %d\n",u+compute_window)
 
 
@@ -92,7 +67,7 @@ function [statistika_array, dolne_hranice, horne_hranice, index_H] = vytvor_auto
             %    fprintf("Dolna hranica prekrocena na %d\n",u)
             %    break
             %end
-        end
+        %end
         [dH,hH] = vytvor_hranice_tunelu(statistika_array(u+1:u+predict_window),sigma_nasobok);
         index_H = index_H + 1;
         dolne_hranice(index_H) = dH;

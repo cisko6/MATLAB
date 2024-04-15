@@ -1,5 +1,6 @@
 
-%clc;clear
+clear;clc
+addpath('C:\Users\patri\Documents\GitHub\MATLAB\Diplomka\funkcie');
 
 pocet_tried_hist = 36;
 compute_window = 1000;
@@ -16,11 +17,11 @@ figure
 histogram(data,pocet_tried_hist);
 [h] = hist(data,pocet_tried_hist);
 %}
-%{
+
 [alfa, beta, n] = MMRP_zisti_alfBet_peakIsMax(data);
 gen_data = generate_mmrp(n,length(data),alfa,beta);
-gen_sampled = sample_generated_data(gen_data, n, length(data));
-%}
+gen_sampled = sample_generated_data(gen_data, n);
+
 
 % y pre histogramy
 ylim_hist = max( ...

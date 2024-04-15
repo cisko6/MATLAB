@@ -1,7 +1,7 @@
 
 clc;clear
 close("all")
-
+%{
 M = load("C:\Users\patri\Downloads\p_alf_bet_070205.mat");
 data = M.ab;
 dlzka_dat = length(data);
@@ -10,18 +10,20 @@ N = 10;
 [ET,ET2] = zisti_et_from_bits(data);
 
 [sampled_data] = sample_generated_data(data, N);
+%}
 
-%{
 N = 10;
-dlzka_dat = 2000;
-alfa = 0.2;
-beta = 0.3;
+dlzka_dat = 20000;%2000000;
+alfa = 0.5;
+beta = 0.5;
 p = 0.8;
 [mmbp_bits] = generate_mmbp(N,dlzka_dat, alfa,beta,p);
 [ET,ET2] = zisti_et_from_bits(mmbp_bits);
 [sampled_data] = sample_generated_data(mmbp_bits, N);
-%}
 
+
+ET = ET/N;
+ET2=ET2/(N^2);
 
 
 lambda_avg = mean(sampled_data);
@@ -94,24 +96,26 @@ for i=1 : length(prava_strana)
 end
 
 
-p_final = pravd_p(index_final);
-alfa_final = alfy(index_final);
-beta_final = bety(index_final);
-
 figure
 t = linspace(spodna_hranica, 1, length(pravd_p));
-plot(t,alfy,t,bety)
-title("Priebeh alfa a beta")
-xlabel("p")
-ylabel("P")
-legend("alfa","beta")
-
-figure
 plot(t,prava_strana,t,lava_strana)
 title("Priebeh pravej a ľavej strany")
 xlabel("p")
 ylabel("P")
 legend("pravá strana","lavá strana")
+
+p_final = pravd_p(index_final);
+alfa_final = alfy(index_final);
+beta_final = bety(index_final);
+%{
+figure
+plot(t,alfy,t,bety)
+title("Priebeh alfa a beta")
+xlabel("p")
+ylabel("P")
+legend("alfa","beta")
+%}
+
 
 
 fprintf("alfa = %.3f\n",alfa_final);

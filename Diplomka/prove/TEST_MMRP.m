@@ -2,20 +2,27 @@
 clear;clc
 addpath('C:\Users\patri\Documents\GitHub\MATLAB\Diplomka\funkcie');
 
-M = load("C:\Users\patri\Downloads\a100203.mat");
+N = 20;
+pocet_generovanych = 10000;
+alfa = 0.3;
+beta = 0.4;
 
-mmrp_bits = generate_mmrp(M.NN,M.Mx, M.alf,M.bet);
-mmrp_data = sample_generated_data(mmrp_bits, M.NN, 1000000);
+fprintf("Pôvodné hodnoty:\n");
+fprintf("alfa: %.5f\n",alfa);
+fprintf("beta: %.5f\n\n",beta);
 
-[alfa, beta, n] = MMRP_zisti_alfBet_peakIsMax(mmrp_data);
+mmrp_bits = generate_mmrp(N,pocet_generovanych,alfa, beta);
+mmrp_data = sample_generated_data(mmrp_bits, N);
+[alfa2, beta2, N] = MMRP_zisti_alfBet_peakIsMax(mmrp_data);
 
-fprintf("alfa je: %.5f\n",alfa);
-fprintf("beta je: %.5f\n",beta);
-fprintf("priemer: %.5f\n\n",mean(mmrp_data));
+fprintf("Vypočítané z intenzít:\n");
+fprintf("alfa cez intenzity: %.5f\n",alfa2);
+fprintf("beta cez intenzity: %.5f\n\n",beta2);
 
-[ET,ET2] = zisti_et_from_bits(M.ab);
-beta2 = 2*ET/(ET2 + ET);
-alfa2 = beta2 * ET;
+[ET,ET2] = zisti_et_from_bits(mmrp_bits);
+beta3 = 2*ET/(ET2 + ET);
+alfa3 = beta3 * ET;
 
-fprintf("alfa cez ET je: %.5f\n",alfa2);
-fprintf("beta cez ET je: %.5f\n",beta2);
+fprintf("Vypočítané z medzier:\n");
+fprintf("alfa: %.5f\n",alfa3);
+fprintf("beta: %.5f\n\n",beta3);

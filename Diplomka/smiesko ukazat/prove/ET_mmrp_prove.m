@@ -1,5 +1,6 @@
 
-M = load("C:\Users\patri\Downloads\T2.mat");
+M = load("C:\Users\patri\Downloads\T.mat");
+%M = load("C:\Users\patri\Downloads\T2.mat");
 data = M.T;
 
 N = length(data);

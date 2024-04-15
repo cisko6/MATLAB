@@ -21,11 +21,7 @@ function [chi2_stat, p_value, critical_value, df] = chi_square_test(obs1,obs2,ch
     
     df = (sum(valid_categories) - 1) * (size(obs, 1) - 1);
     
-    if df > 0
-        p_value = 1 - chi2cdf(chi2_stat, df);
-    else
-        p_value = NaN; % The chi-square test is not applicable
-    end
+    p_value = 1 - chi2cdf(chi2_stat, df);
 
     critical_value = chi2inv(1 - chi_alfa, df);
 end

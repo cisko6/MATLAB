@@ -9,7 +9,7 @@ attacks_folder_mat = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\";
 shift = 1;
 chi_alfa = 0.05;
 pocet_tried_hist = 20;
-simulacia = "MMBP"; % MMRP, MMBP
+simulacia = "MMRP"; % MMRP, MMBP
 use_fourier = "yes"; % yes, default=no
 keep_frequencies = 3;
 slot_window = 0.01;
@@ -62,7 +62,7 @@ for j=1:8
         
 
         % save cely utok
-        figall = figure('Visible', 'off');
+        figall = figure;
         plot(cely_tok);
         grid on
         title(sprintf('Utok - %s', folder_name));
@@ -102,7 +102,7 @@ for j=1:8
                 gen_data = generate_mmbp(n,length(data),alfa,beta,p);
             end
 
-            gen_sampled = sample_generated_data(gen_data, n, length(data));
+            gen_sampled = sample_generated_data(gen_data, n);
 
 
 
@@ -128,11 +128,11 @@ for j=1:8
                 legend("Data");
                 xlabel("Čas")
                 ylabel("Počet paketov");
-                saveas(figure14,fullfile(simul_folder_path,sprintf('Data pred FFT od %d do %d.fig', 1,compute_window)));
-                saveas(figure14,fullfile(simul_folder_path,sprintf('Data pred FFT od %d do %d.png', 1,compute_window)));
+                saveas(figure14,fullfile(simul_folder_path,sprintf('aData pred FFT od %d do %d.fig', 1,compute_window)));
+                saveas(figure14,fullfile(simul_folder_path,sprintf('aData pred FFT od %d do %d.png', 1,compute_window)));
             end
     
-            figure10 = figure('Visible', 'off');
+            figure10 = figure;
             plot(data);
             xlim([0 length(data)])
             ylim([0 n])
@@ -153,7 +153,7 @@ for j=1:8
                 saveas(figure10,fullfile(simul_folder_path,sprintf('Data od %d do %d.png', 1,compute_window)));
             end
     
-            figure11 = figure('Visible', 'off');
+            figure11 = figure;
             plot(gen_sampled);
             xlim([0 length(gen_sampled)])
             ylim([0 n])
@@ -165,14 +165,18 @@ for j=1:8
             saveas(figure11,fullfile(simul_folder_path,sprintf('e%s od %d do %d.fig', simulacia,1,compute_window)));
             saveas(figure11,fullfile(simul_folder_path,sprintf('e%s od %d do %d.png', simulacia,1,compute_window)));
     
-            figure12 = figure('Visible', 'off');
+            figure12 = figure;
             h1 = histcounts(data,pocet_tried_hist);
             h2 = histcounts(gen_sampled,pocet_tried_hist);
             plot(h1,'*-')
             hold on
             plot(h2,'*-')
             grid on
-            title(sprintf('Hist Data a %s, od %d do %d', simulacia,1,compute_window));
+            if use_fourier == "yes"
+                title(sprintf('FFT PEAK %dx AVERAGE',average_multiplier));
+            else
+                title(sprintf('PEAK %dx AVERAGE',average_multiplier));
+            end
             xlabel("Triedy")
             ylabel("Počet paketov");
             legend("data",sprintf("%s",simulacia))

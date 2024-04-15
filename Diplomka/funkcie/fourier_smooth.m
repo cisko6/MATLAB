@@ -9,7 +9,7 @@ function [fourier_data, y_final] = fourier_smooth(data, keep_frequencies)
     ca = abs(c);
     
     % zisti najvacsie indexy
-    c_pom = c(1:length(c)/2);
+    c_pom = c(1:floor(length(c)/2));
     biggest_indexes = zeros(1, keep_frequencies);
     for i = 1:keep_frequencies
         [~, index] = max(c_pom);

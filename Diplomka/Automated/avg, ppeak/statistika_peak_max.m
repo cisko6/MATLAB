@@ -9,13 +9,14 @@ attacks_folder_mat = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\";
 shift = 1;
 chi_alfa = 0.05;
 pocet_tried_hist = 20;
-simulacia = "MMBP"; % MMRP, MMBP
-use_fourier = "yes"; % yes, default=no
+simulacia = "MMRP"; % MMRP, MMBP
+use_fourier = "no"; % yes, default=no
+typ_statistiky = "dkl"; % chi,dkl
 keep_frequencies = 3;
 slot_window = 0.01;
 predict_window = 1000;
 
-for j=1:8
+for j=5:5
     if j == 1
         file_path = fullfile(attacks_folder_mat, "Attack_2_d010.mat");
     elseif j == 2
@@ -52,6 +53,7 @@ for j=1:8
         file_path = "C:\Users\patri\Desktop\diplomka\Zaznamy\záznamy\nekumulovane medzery\ver_data\Ver_data.txt";
     end
         %}
+    
 
     [~, folder_name, extension] = fileparts(file_path);
 
@@ -89,29 +91,51 @@ for j=1:8
     end
 
 
-    for l=2:4
+    for l=1:3
         if l == 1
-            compute_window = 500;
-        elseif l == 2
             compute_window = 1000;
-        elseif l == 3
+        elseif l == 2
             compute_window = 1500;
-        elseif l == 4
+        elseif l == 3
             compute_window = 2000;
         end
-    
+ 
         full_folder_name = folder_name + "\" + num2str(compute_window) + " cw";
         folder_path = fullfile(where_to_store, full_folder_name);
-        
         if ~exist(folder_path, 'dir')
             mkdir(folder_path);
         end
-        
 
+        % zaciatok
+        data = cely_tok(1:compute_window);
+
+        if use_fourier == "yes"
+            [fft_data, fft_frequency] = fourier_smooth(data, keep_frequencies);
+            data = fft_data;
+        end
+
+        if simulacia == "MMRP"
+            [alfa, beta, n] = MMRP_zisti_alfBet_peakIsMax(data);
+            gen_data = generate_mmrp(n,length(data),alfa,beta);
+        elseif simulacia == "MMBP"
+            [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsMax(data, chi_alfa,pocet_tried_hist);
+            gen_data = generate_mmbp(n,length(data),alfa,beta,p);
+        end
+
+        gen_sampled = sample_generated_data(gen_data, n);
+
+        if typ_statistiky == "dkl"
+            % divergencia klzavo
+            [statistika_array] = pouzi_diverg(cely_tok, gen_sampled, compute_window, shift, use_fourier, keep_frequencies,pocet_tried_hist);
+        elseif typ_statistiky == "chi"
+            % chi klzavo
+            [statistika_array, p_value_array, critical_value_array] = pouzi_chi_square_test(cely_tok, gen_sampled, compute_window, shift, pocet_tried_hist, chi_alfa, use_fourier, keep_frequencies);
+        end
 
         % save cely utok
         figall = figure('Visible', 'off');
         plot(cely_tok);
+        grid on
         title(sprintf('Utok - %s', folder_name));
         cely_tok_path = fullfile(where_to_store, folder_name);
         if ~exist(sprintf("%s/Cely_utok.png",cely_tok_path), 'file')
@@ -120,69 +144,37 @@ for j=1:8
         end
         close(figall)
 
-
-        for o=1:3
-            if o == 1
-                average_multiplier = 2;
-            elseif o == 2
-                average_multiplier = 3;
-            elseif o == 3
-                average_multiplier = 4;
-            elseif o == 4
-                average_multiplier = 2.5;
-            elseif o == 5
-                average_multiplier = 3.5;
-            end
-
-            average_folder_path = folder_path + "\" + num2str(average_multiplier) + " average_multiplier";
-            if ~exist(average_folder_path, 'dir')
-                mkdir(average_folder_path);
-            end
-
-            % zaciatok
-            data = cely_tok(1:compute_window);
-    
-            if use_fourier == "yes"
-                [data, fft_frequency] = fourier_smooth(data, keep_frequencies);
-            end
-
-            if simulacia == "MMRP"
-                [alfa, beta, n] = MMRP_zisti_alfBet_peakIsChanged(data, average_multiplier);
-                gen_data = generate_mmrp(n,length(data),alfa,beta);
-            elseif simulacia == "MMBP"
-                [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsChanged(data, chi_alfa,average_multiplier,pocet_tried_hist);
-                gen_data = generate_mmbp(n,length(data),alfa,beta,p);
-            end
-
-            gen_sampled = sample_generated_data(gen_data, n);
-
-
-            % divergencia klzavo
-            [diverg_array] = pouzi_diverg(cely_tok, gen_sampled, compute_window, shift, use_fourier, keep_frequencies);
-
-
-            %%% diverg
-            figure1 = figure('Visible', 'off');
-            t = linspace(1,length(cely_tok),length(cely_tok));
-            t2 = linspace(compute_window,length(cely_tok), length(cely_tok)-compute_window);
-            plot(t,cely_tok,t2,diverg_array);
-            grid on
+        %%% diverg, chi
+        figure1 = figure('Visible', 'off');
+        t = linspace(1,length(cely_tok),length(cely_tok));
+        t2 = linspace(compute_window,length(cely_tok), length(cely_tok)-compute_window);
+        plot(t,cely_tok,t2,statistika_array,'r');
+        grid on
+        if typ_statistiky == "dkl"
             title("Kullback Leibler Divergencia")
             legend("Data","DKL");
-            xlabel("Čas")
-            ylabel("Počet paketov");
-    
-            % save diverg
-            saveas(figure1,fullfile(average_folder_path,sprintf('DIVERG, compute_window=%d, shift=%d.fig',compute_window, shift)));
-            saveas(figure1,fullfile(average_folder_path,sprintf('DIVERG, compute_window=%d, shift=%d.png',compute_window, shift)));
-            close(figure1)
-
-            clearvars -except M slot_window predict_window compute_window sigma_nasobok cely_tok file_path folder_path where_to_store attacks_folder_mat folder_name posun_dat shift pocet_tried_hist chi_alfa simulacia use_fourier keep_frequencies;    
-            close all;
+        elseif typ_statistiky == "chi"
+            title("Chi-kvadrát štatistika")
+            legend("Data","Chi-štatistika");
         end
+        xlabel("Čas")
+        ylabel("Počet paketov");
+
+        % save diverg, chi
+        if typ_statistiky == "dkl"
+            saveas(figure1,fullfile(folder_path,sprintf('DIVERG, compute_window=%d, shift=%d.fig',compute_window, shift)));
+            saveas(figure1,fullfile(folder_path,sprintf('DIVERG, compute_window=%d, shift=%d.png',compute_window, shift)));
+            close(figure1)
+        elseif typ_statistiky == "chi"
+            saveas(figure1,fullfile(folder_path,sprintf('CHI-STATISTICS, compute_window=%d, chi_alfa=%.2f, pocet_tried_hist=%d, shift=%d.png',compute_window,chi_alfa,pocet_tried_hist, shift)));
+            saveas(figure1,fullfile(folder_path,sprintf('CHI-STATISTICS, compute_window=%d, chi_alfa=%.2f, pocet_tried_hist=%d, shift=%d.fig',compute_window,chi_alfa,pocet_tried_hist, shift)));
+            close(figure1)
+        end
+
+        clearvars -except M slot_window predict_window file_path sigma_nasobok folder_path where_to_store attacks_folder_mat folder_name compute_window shift pocet_tried_hist chi_alfa simulacia use_fourier keep_frequencies cely_tok typ_statistiky;    
+        close all;
     end
 end
-
 
 
 elapsedTime = toc;
