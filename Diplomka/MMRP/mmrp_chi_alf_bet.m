@@ -1,5 +1,5 @@
-clear
-clc
+
+clear;clc
 
 % parametre, čo treba meniť
 file_path = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_5_v2";

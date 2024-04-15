@@ -9,5 +9,4 @@ def split_csv(input_filename, output_filename, start_line, end_line):
         csv_writer = csv.writer(output_file)
         csv_writer.writerows(lines)
 
-# Usage
 split_csv('07 tsharkSTREDA1.csv', '0701.csv', 5000000, 7500000)

@@ -3,12 +3,17 @@ clear;clc
 
 % vstup csv - TIS
 
-M = readtable("C:\Users\patri\Desktop\diplomka\TIS\Po vybranych kuskoch\0207_3051.csv");
+where_to_store = "C:\Users\patri\Desktop\TCP_UDP";
+attack_file = "C:\Users\patri\Desktop\diplomka\Zaznamy\záznamy\Pcapy s protokolmi\TIS - po kuskoch\0605b_10582.csv";
+
+M = readtable(attack_file);
+
 
 slot_window = 0.1;
 dlzka_pcapu = height(M) - 1;
 data_kb = M.Var8;
 protocols = M.Var13;
+
 
 %%%%%%%%%%%%%%%% velkost paketov navzorkovana na dany pocet kB - blbost
 %max_size_kb = 50000; kB
@@ -95,65 +100,116 @@ for i=1:dlzka_pcapu
 end
 
 %%%%%%%%%%%%%%%%
-
-subplot(4,1,1)
 lastNonZeroIndex = find(sampled_data, 1, 'last');
 sampled_data = sampled_data(1:lastNonZeroIndex);
-plot(sampled_data);
-xlim([1 lastNonZeroIndex])
-title("Pocty paketov - slot window="+ slot_window +"s")
-
-subplot(4,1,2)
-lastNonZeroIndex = find(sampled_data_kb, 1, 'last');
-sampled_data_kb = sampled_data_kb(1:lastNonZeroIndex);
-plot(sampled_data_kb);
-xlim([1 lastNonZeroIndex])
-title("Velkost paketov")
-
-subplot(4,1,3)
-lastNonZeroIndex = find(other_pocty, 1, 'last');
-other_pocty = other_pocty(1:lastNonZeroIndex);
-plot(other_pocty);
-xlim([1 lastNonZeroIndex])
-title("Pocty paketov inych ako TCP a UDP")
-
-subplot(4,1,4)
-lastNonZeroIndex = find(other_kb, 1, 'last');
-other_kb = other_kb(1:lastNonZeroIndex);
-plot(other_kb);
-xlim([1 lastNonZeroIndex])
-title("Velkost paketov inych ako TCP a UDP")
-
-
-figure
-
-subplot(4,1,1)
 lastNonZeroIndex = find(tcp_pocty, 1, 'last');
 tcp_pocty = tcp_pocty(1:lastNonZeroIndex);
-plot(tcp_pocty);
-xlim([1 lastNonZeroIndex])
-title("Pocty TCP")
-
-subplot(4,1,2)
-lastNonZeroIndex = find(tcp_kB, 1, 'last');
-tcp_kB = tcp_kB(1:lastNonZeroIndex);
-plot(tcp_kB);
-xlim([1 lastNonZeroIndex])
-title("Velkost paketov TCP")
-
-subplot(4,1,3)
 lastNonZeroIndex = find(udp_pocty, 1, 'last');
 udp_pocty = udp_pocty(1:lastNonZeroIndex);
-plot(udp_pocty);
-xlim([1 lastNonZeroIndex])
-title("Pocty UDP")
+lastNonZeroIndex = find(other_pocty, 1, 'last');
+other_pocty = other_pocty(1:lastNonZeroIndex);
 
-subplot(4,1,4)
+max1 = max(max(tcp_pocty),max(udp_pocty));
+maxFinal = max(max1,max(other_pocty));
+
+
+figure1 = figure;
+plot(sampled_data);
+xlim([0 length(sampled_data)])
+grid on
+xlabel("Čas")
+ylabel("Počet paketov")
+title("Celkové počty paketov - vzorkovacie okno="+ slot_window +"s")
+saveas(figure1,fullfile(where_to_store,"celkovy_pocet_paketov.png"));
+
+figure2 = figure;
+
+subplot(3,1,1)
+plot(tcp_pocty);
+xlim([0 length(tcp_pocty)])
+ylim([0 maxFinal])
+grid on
+xlabel("Čas")
+ylabel("Počet paketov")
+title("Počty TCP")
+
+subplot(3,1,2)
+plot(udp_pocty);
+xlim([0 length(tcp_pocty)])
+ylim([0 maxFinal])
+grid on
+xlabel("Čas")
+ylabel("Počet paketov")
+title("Počty UDP")
+
+subplot(3,1,3)
+plot(other_pocty);
+xlim([0 length(tcp_pocty)])
+ylim([0 maxFinal])
+grid on
+xlabel("Čas")
+ylabel("Počet paketov")
+title("Počty paketov iných ako TCP a UDP")
+saveas(figure2,fullfile(where_to_store,"pocet_paketov_TCP_UDP_Other.png"));
+
+%
+
+lastNonZeroIndex = find(sampled_data_kb, 1, 'last');
+sampled_data_kb = sampled_data_kb(1:lastNonZeroIndex);
+lastNonZeroIndex = find(tcp_kB, 1, 'last');
+tcp_kB = tcp_kB(1:lastNonZeroIndex);
 lastNonZeroIndex = find(udp_kB, 1, 'last');
 udp_kB = udp_kB(1:lastNonZeroIndex);
+lastNonZeroIndex = find(other_kb, 1, 'last');
+other_kb = other_kb(1:lastNonZeroIndex);
+
+max1 = max(max(tcp_kB),max(udp_kB));
+maxFinal = max(max1,max(other_kb));
+
+
+figure3 = figure;
+plot(sampled_data_kb);
+xlim([0 length(sampled_data_kb)])
+grid on
+xlabel("Čas")
+ylabel("Veľkosť paketov")
+title("Celková veľkosť paketov - vzorkovacie okno="+ slot_window +"s")
+saveas(figure3,fullfile(where_to_store,"celkova_velkost_paketov.png"));
+
+figure4 = figure;
+subplot(3,1,1)
+plot(tcp_kB);
+xlim([0 length(tcp_kB)])
+ylim([0 maxFinal])
+grid on
+xlabel("Čas")
+ylabel("Veľkosť paketov")
+title("Veľkost paketov TCP")
+
+subplot(3,1,2)
 plot(udp_kB);
-xlim([1 lastNonZeroIndex])
-title("Velkost paketov UDP")
+xlim([0 length(tcp_kB)])
+ylim([0 maxFinal])
+grid on
+xlabel("Čas")
+ylabel("Veľkosť paketov")
+title("Veľkost paketov UDP")
+
+subplot(3,1,3)
+plot(other_kb);
+xlim([0 length(tcp_kB)])
+ylim([0 maxFinal])
+grid on
+xlabel("Čas")
+ylabel("Veľkosť paketov")
+title("Veľkost paketov iných ako TCP a UDP")
+saveas(figure4,fullfile(where_to_store,"velkost_paketov_TCP_UDP_Other.png"));
+
+close("all")
+
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -1,6 +1,5 @@
 
 
-
 function [mmrp_data] = generate_mmrp(n,dlzka_dat, alfa,beta)
     mmrp_data = zeros(1,ceil(dlzka_dat));
 

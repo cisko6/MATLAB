@@ -8,32 +8,30 @@ where_to_store = "C:\Users\patri\Documents\GitHub\MATLAB\Diplomka\Automated\avg,
 attacks_folder_mat = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\";
 shift = 1;
 chi_alfa = 0.05;
-pocet_tried_hist = 10;
-simulacia = "MMRP"; % MMRP, MMBP
-use_fourier = "no"; % yes, default=no
+pocet_tried_hist = 20;
+simulacia = "MMBP"; % MMRP, MMBP
+use_fourier = "yes"; % yes, default=no
 keep_frequencies = 3;
 slot_window = 0.01;
 predict_window = 1000;
 
 for j=1:1
     if j == 1
-        file_path = "C:\Users\patri\Desktop\mat subory\Attack_2_d005.mat";
-        %file_path = fullfile(attacks_folder_mat, "Attack_1.mat");
-    elseif j == 2
         file_path = fullfile(attacks_folder_mat, "Attack_2_d010.mat");
-    elseif j == 3
+    elseif j == 2
+        %file_path = "C:\Users\patri\Desktop\mat subory\Attack_2_d005.mat";
         file_path = fullfile(attacks_folder_mat, "Attack_3_d010.mat");
-    elseif j == 4
+    elseif j == 3
         file_path = fullfile(attacks_folder_mat, "Attack_4_d0001.mat");
-    elseif j == 5
+    elseif j == 4
         file_path = fullfile(attacks_folder_mat, "Attack_5_v1.mat");
-    elseif j == 6
+    elseif j == 5
         file_path = fullfile(attacks_folder_mat, "Attack_5_v2.mat");
-    elseif j == 7
+    elseif j == 6
         file_path = fullfile(attacks_folder_mat, "Attack_6.mat");
-    elseif j == 8
+    elseif j == 7
         file_path = fullfile(attacks_folder_mat, "Attack_7.mat");
-    elseif j == 9
+    elseif j == 8
         file_path = fullfile(attacks_folder_mat, "Attack_8.mat");
     end
     
@@ -92,7 +90,7 @@ for j=1:1
     end
 
 
-    for l=1:2
+    for l=1:4
         if l == 1
             compute_window = 500;
         elseif l == 2
@@ -124,17 +122,17 @@ for j=1:1
         close(figall)
 
 
-        for o=3:5
+        for o=1:3
             if o == 1
                 average_multiplier = 2;
             elseif o == 2
-                average_multiplier = 2.5;
-            elseif o == 3
                 average_multiplier = 3;
-            elseif o == 4
-                average_multiplier = 3.5;
-            elseif o == 5
+            elseif o == 3
                 average_multiplier = 4;
+            elseif o == 4
+                average_multiplier = 2.5;
+            elseif o == 5
+                average_multiplier = 3.5;
             end
 
             average_folder_path = folder_path + "\" + num2str(average_multiplier) + " average_multiplier";
@@ -153,11 +151,11 @@ for j=1:1
                 [alfa, beta, n] = MMRP_zisti_alfBet_peakIsChanged(data, average_multiplier);
                 gen_data = generate_mmrp(n,length(data),alfa,beta);
             elseif simulacia == "MMBP"
-                [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsChanged(data, chi_alfa,average_multiplier);
+                [alfa, beta, p, n] = MMBP_zisti_alfBetP_peakIsChanged(data, chi_alfa,average_multiplier,pocet_tried_hist);
                 gen_data = generate_mmbp(n,length(data),alfa,beta,p);
             end
 
-            gen_sampled = sample_generated_data(gen_data, n, length(data));
+            gen_sampled = sample_generated_data(gen_data, n);
 
 
             simul_folder_name = folder_name + "\pociatocna_simulacia\"+ num2str(compute_window) + " cw\" + num2str(average_multiplier) + " average_multiplier";
@@ -169,6 +167,7 @@ for j=1:1
             % chi square test klzavo
             [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_square_test_PeakChanged(cely_tok, gen_sampled, compute_window, shift, pocet_tried_hist, chi_alfa, use_fourier, keep_frequencies,simul_folder_path);
 
+            %{
             %%%% TUNEL %%%%
             for r=1:4
                 if r == 1
@@ -186,7 +185,8 @@ for j=1:1
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 
                 % save tunel
-                tunel_folder_name = folder_name + "\" + num2str(compute_window) + " cw\tunel\"+ num2str(sigma_nasobok)+" sigma nasobok";
+                %tunel_folder_name = folder_name + "\" + num2str(compute_window) + " cw\tunel\"+ num2str(sigma_nasobok)+" sigma nasobok";
+                tunel_folder_name = folder_name + "\" + num2str(compute_window) + " cw\tunel\";
                 tunel_folder_path = fullfile(where_to_store, tunel_folder_name);
                 if ~exist(tunel_folder_path, 'dir')
                     mkdir(tunel_folder_path);
@@ -199,10 +199,11 @@ for j=1:1
                 plot(t3,0,t,chi2_stat_array,'b',t2,dH,'r',t2,hH,'r')
                 title(sprintf("Tunel, sigma=%d",sigma_nasobok));
         
-                saveas(figtunel,fullfile(tunel_folder_name,sprintf('TUNEL, compute_window=%d, predict_window=%d.fig',compute_window,predict_window)));
-                saveas(figtunel,fullfile(tunel_folder_name,sprintf('TUNEL, compute_window=%d, predict_window=%d.png',compute_window,predict_window)));
+                saveas(figtunel,fullfile(tunel_folder_name,sprintf('TUNEL, sigma=%d ,compute_window=%d, predict_window=%d.fig',sigma_nasobok,compute_window,predict_window)));
+                saveas(figtunel,fullfile(tunel_folder_name,sprintf('TUNEL, sigma=%d , compute_window=%d, predict_window=%d.png',sigma_nasobok,compute_window,predict_window)));
                 close(figtunel)
             end
+            %}
 
             % save simulaciu
             simul_folder_name = folder_name + "\pociatocna_simulacia\"+ num2str(compute_window) + " cw\" + num2str(average_multiplier) + " average_multiplier";
@@ -229,7 +230,6 @@ for j=1:1
             figure10 = figure('Visible', 'off');
             plot(data);
             xlim([0 length(data)])
-            ylim([0 n])
             if use_fourier == "yes"
                 title(sprintf('Data po FFT od %d do %d',1,compute_window));
             else

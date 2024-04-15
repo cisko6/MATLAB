@@ -28,7 +28,7 @@ beta = 2*ET/(ET2 + ET);
 alfa = beta * ET;
 
 fprintf('ET=%.15f\n', ET);
-fprintf('ET2=%.15f\n\n', ET2);
+fprintf('ET2=%.15f\n', ET2);
 fprintf('MMRP alfa: %.3f\n',alfa);
 fprintf('MMRP beta: %.3f\n',beta);
 

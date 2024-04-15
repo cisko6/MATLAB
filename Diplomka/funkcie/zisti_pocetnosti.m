@@ -1,6 +1,5 @@
 
 function vysl = zisti_pocetnosti(data)
-    % zistenie početnost núl 0 00 000
     zeroLengths = [];
     zeroCount = 0;
     for i = 1:length(data)
@@ -22,8 +21,7 @@ function vysl = zisti_pocetnosti(data)
     for i = 1:length(zeroLengths)
         vysl(zeroLengths(i)+1) = vysl(zeroLengths(i)+1) + 1;
     end
-    
-    % zistenie početnosť jednotiek 11
+
     count = 0;
     for i = 1:length(data)-1
         if data(i) == 1 && data(i+1) == 1
