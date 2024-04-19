@@ -16,7 +16,7 @@ keep_frequencies = 3;
 slot_window = 0.01;
 predict_window = 1000;
 
-for j=5:5
+for j=9:12
     if j == 1
         file_path = fullfile(attacks_folder_mat, "Attack_2_d010.mat");
     elseif j == 2
@@ -33,6 +33,19 @@ for j=5:5
         file_path = fullfile(attacks_folder_mat, "Attack_7.mat");
     elseif j == 8
         file_path = fullfile(attacks_folder_mat, "Attack_8.mat");
+    elseif j == 9
+        file_path = "C:\Users\patri\Desktop\diplomka\Zaznamy\Finalisti - skopirovane z ostatnych\FINALE\Attack_1-ISCX\Attack_1-ISCX 1.txt";
+        %file_path = "C:\Users\patri\Desktop\diplomka\Zaznamy\Finalisti - skopirovane z ostatnych\FINALE\A1\A1_medzery.txt";
+        slot_window = 0.01;
+    elseif j == 10
+        file_path = "C:\Users\patri\Desktop\diplomka\Zaznamy\Finalisti - skopirovane z ostatnych\FINALE\0207_3051.csv";
+        slot_window = 0.01;
+    elseif j == 11
+        file_path = "C:\Users\patri\Desktop\diplomka\Zaznamy\Finalisti - skopirovane z ostatnych\FINALE\0504b_1316.csv";
+        slot_window = 0.01;
+    elseif j == 12
+        file_path = "C:\Users\patri\Desktop\diplomka\Zaznamy\Finalisti - skopirovane z ostatnych\FINALE\0605b_10582.csv";
+        slot_window = 0.01;
     end
     
         %{
@@ -75,8 +88,7 @@ for j=5:5
         M = readtable(file_path);
         variableExists = ismember('Var2', M.Properties.VariableNames);
         if variableExists
-            data_casy = M.Var6;
-            cely_tok = sample_csvPcap(data_casy, slot_window);
+            cely_tok = sample_csvPcap(M, slot_window);
         else
             M = table2array(M);
             cely_tok = cumulatedSpaces_to_casy(M,slot_window);
@@ -129,12 +141,15 @@ for j=5:5
             [statistika_array] = pouzi_diverg(cely_tok, gen_sampled, compute_window, shift, use_fourier, keep_frequencies,pocet_tried_hist);
         elseif typ_statistiky == "chi"
             % chi klzavo
-            [statistika_array, p_value_array, critical_value_array] = pouzi_chi_square_test(cely_tok, gen_sampled, compute_window, shift, pocet_tried_hist, chi_alfa, use_fourier, keep_frequencies);
+            [statistika_array] = pouzi_chi_square_test(cely_tok, gen_sampled, compute_window, shift, pocet_tried_hist, chi_alfa, use_fourier, keep_frequencies);
+            % [statistika_array, p_value_array, critical_value_array] = pouzi_chi_square_test(cely_tok, gen_sampled, compute_window, shift, pocet_tried_hist, chi_alfa, use_fourier, keep_frequencies);
         end
 
         % save cely utok
         figall = figure('Visible', 'off');
         plot(cely_tok);
+        xlabel("Čas")
+        ylabel("Počet paketov")
         grid on
         title(sprintf('Utok - %s', folder_name));
         cely_tok_path = fullfile(where_to_store, folder_name);

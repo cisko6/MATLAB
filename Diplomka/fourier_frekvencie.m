@@ -2,7 +2,7 @@
 clear;clc
 
 keep_frequencies = 3;
-load("C:\Users\patri\Desktop\mat subory\Attack_2_d005.mat")
+load("C:\Users\patri\Desktop\mat subory\Attack_1.mat")
 
 N = 1000;
 a = a(1:N);

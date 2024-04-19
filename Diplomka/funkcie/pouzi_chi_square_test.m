@@ -20,8 +20,9 @@ function [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_squa
             data = fourier_smooth(data, keep_frequencies);
         end
 
-        [chi2_stat, p_value, critical_value] = chi_square_test(data,gen_sampled,chi_alfa, pocet_tried_hist);
-    
+        %[chi2_stat, p_value, critical_value] = chi_square_test(data,gen_sampled,chi_alfa, pocet_tried_hist);
+        [chi2_stat, p_value, critical_value] = chi_square_test2(data, gen_sampled, pocet_tried_hist,chi_alfa);
+
         chi2_stat_array(k-1) = chi2_stat;
         p_value_array(k-1) = p_value;
         critical_value_array(k-1) = critical_value;

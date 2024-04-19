@@ -15,7 +15,7 @@ keep_frequencies = 3;
 slot_window = 0.01;
 predict_window = 1000;
 
-for j=1:1
+for j=1:8
     if j == 1
         file_path = fullfile(attacks_folder_mat, "Attack_2_d010.mat");
     elseif j == 2
@@ -137,7 +137,8 @@ for j=1:1
         gen_sampled = sample_generated_data(gen_data, n);
 
         % chi square test klzavo
-        [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_square_test_peakMax(cely_tok, gen_sampled, compute_window, shift, pocet_tried_hist, chi_alfa, use_fourier, keep_frequencies, simul_folder_path);
+        [chi2_stat_array, p_value_array, critical_value_array] = pouzi_chi_square_test(cely_tok, gen_sampled, compute_window, shift, pocet_tried_hist, chi_alfa, use_fourier, keep_frequencies);
+        
 
         %{
         %%%% TUNEL %%%%

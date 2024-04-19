@@ -1,7 +1,7 @@
 
 clear
 clc
-
+addpath('C:\Users\patri\Documents\GitHub\MATLAB\Diplomka\funkcie');
 %parametre na menienie
 % where_to_store, attacks_folder, posun_dat
 
@@ -11,7 +11,7 @@ simulacia = "MMBP"; % MMRP, MMBP
 chi_alfa = 0.05;
 pocet_tried_hist = 20;
 
-for j=1:12
+for j=6:6
     if j == 1
         file_path = fullfile(attacks_folder_mat, "Attack_2_d010.mat");
     elseif j == 2
