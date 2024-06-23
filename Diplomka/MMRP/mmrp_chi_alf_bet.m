@@ -3,7 +3,7 @@ clear;clc
 
 % parametre, čo treba meniť
 file_path = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\Attack_5_v2";
-posun_dat = 1000;
+posun_dat = 2000;
 
 [~, folder_name, ~] = fileparts(file_path);
 M = load(file_path);

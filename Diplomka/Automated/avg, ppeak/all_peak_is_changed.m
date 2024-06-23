@@ -9,8 +9,8 @@ attacks_folder_mat = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\";
 shift = 1;
 chi_alfa = 0.05;
 pocet_tried_hist = 20;
-simulacia = "MMBP"; % MMRP, MMBP
-use_fourier = "yes"; % yes, default=no
+simulacia = "MMRP"; % MMRP, MMBP
+use_fourier = "no"; % yes, default=no
 keep_frequencies = 3;
 slot_window = 0.01;
 predict_window = 1000;

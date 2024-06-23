@@ -23,10 +23,9 @@ title("t,y")
 function [fourier_data, y_final] = fourier_smooth(data, keep_frequencies)
     
     N = length(data);
-    t = linspace(1,N,N);
 
     % fft
-    c =fft(data)./N;
+    c = fft(data)./N;
     c(1)=0;
     ca = abs(c);
     
@@ -40,6 +39,7 @@ function [fourier_data, y_final] = fourier_smooth(data, keep_frequencies)
     end
     
     % ponechaj iba par frekvencii
+    t = linspace(1,N,N);
     y_pom = 0;
     for i = 1:keep_frequencies
         y_final = y_pom + 2*real(c(biggest_indexes(i)))*cos((biggest_indexes(i)-1)*t*2*pi/N)-2*imag(c(biggest_indexes(i)))*sin((biggest_indexes(i)-1)*t*2*pi/N)+c(1);

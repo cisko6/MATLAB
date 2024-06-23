@@ -2,8 +2,8 @@
 clc;clear
 
 
-X = readmatrix('falosne_hlasenia.txt'); typ_merania = "falosne_hlasenia";
-%X = readmatrix('doba_rozpoznania.txt'); typ_merania = "doba_rozpoznania";
+%X = readmatrix('falosne_hlasenia.txt'); typ_merania = "falosne_hlasenia";
+X = readmatrix('doba_rozpoznania.txt'); typ_merania = "doba_rozpoznania";
 
 
 X(isnan(X)) = max(X(:));
@@ -58,4 +58,18 @@ elseif typ_merania == "falosne_hlasenia"
     saveas(figure1,"Statistika_2D_falosne_hlasenia.png")
     saveas(figure2,"Statistika_3D_falosne_hlasenia.png")
 end
+
+
+
+figure3 = figure;
+t = linspace(1,length(latent),length(latent));
+bar(t,latent);
+grid on
+if typ_merania == "doba_rozpoznania"
+    title("Vlastné hodnoty doby rozpoznania")
+elseif typ_merania == "falosne_hlasenia"
+    title("Vlastné hodnoty falošných hlásení")
+end
+xlabel("Počet hodnôt")
+ylabel("Veľkosť hodnôt")
 

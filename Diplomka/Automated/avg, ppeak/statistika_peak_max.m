@@ -11,12 +11,12 @@ chi_alfa = 0.05;
 pocet_tried_hist = 20;
 simulacia = "MMRP"; % MMRP, MMBP
 use_fourier = "no"; % yes, default=no
-typ_statistiky = "dkl"; % chi,dkl
+typ_statistiky = "chi"; % chi,dkl
 keep_frequencies = 3;
 slot_window = 0.01;
 predict_window = 1000;
 
-for j=9:12
+for j=1:8
     if j == 1
         file_path = fullfile(attacks_folder_mat, "Attack_2_d010.mat");
     elseif j == 2

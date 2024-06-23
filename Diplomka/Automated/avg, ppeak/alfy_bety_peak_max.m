@@ -7,11 +7,11 @@ addpath('C:\Users\patri\Documents\GitHub\MATLAB\Diplomka\funkcie');
 
 where_to_store = "C:\Users\patri\Documents\GitHub\MATLAB\Diplomka\Automated\avg, ppeak";
 attacks_folder_mat = "C:\Users\patri\Documents\GitHub\MATLAB\Utoky\";
-simulacia = "MMBP"; % MMRP, MMBP
+simulacia = "MMRP"; % MMRP, MMBP
 chi_alfa = 0.05;
 pocet_tried_hist = 20;
 
-for j=6:6
+for j=2:2
     if j == 1
         file_path = fullfile(attacks_folder_mat, "Attack_2_d010.mat");
     elseif j == 2
@@ -99,6 +99,7 @@ for j=6:6
         priemer = zeros(1,length(cely_tok)-compute_window);
         alfy = zeros(1,length(cely_tok)-compute_window);
         bety = zeros(1,length(cely_tok)-compute_window);
+        
         for k=1:999999 % počet posunov
 
             from = k;
@@ -130,7 +131,7 @@ for j=6:6
             nasobitel = 100000;
         end
         if attack_name == "Attack_3_d010"
-            nasobitel = 200000;
+            nasobitel = 10000000;
         end
 
         if attack_name == "Attack_5_v1"
@@ -142,7 +143,7 @@ for j=6:6
         end
 
         if attack_name == "Attack_6" 
-            nasobitel = 1000;
+            nasobitel = 5000;
         end
 
         if attack_name == "Attack_1-ISCX 1" 
@@ -151,12 +152,13 @@ for j=6:6
 
         alfy = alfy .* nasobitel;
         bety = bety .* nasobitel;
+        
 
         % save alf bet
         fig = figure;
         t = linspace(0,length(cely_tok),length(cely_tok));
         t2 = linspace(compute_window,length(cely_tok),length(alfy));
-        plot(t,cely_tok,'b', t2,alfy,'r',t2,bety,'g');
+        plot(t,cely_tok,'b', t2,alfy,'r',t2,bety,'m');
         %plot(t3,alfy,'r',t3,bety,'b',0,0.00001);
         grid on
         title(sprintf("alfa a beta, cw=%d",compute_window));
@@ -168,7 +170,7 @@ for j=6:6
         fig2= figure;
         t = linspace(0,length(cely_tok),length(cely_tok));
         t2 = linspace(compute_window,length(cely_tok),length(alfy));
-        plot(t2,alfy,'r',t2,bety,'g',t,0)
+        plot(t2,alfy,'r',t2,bety,'m',t,0)
         title("alfa a beta")
         grid on
         legend("alfa","beta")
@@ -188,11 +190,14 @@ for j=6:6
         grid on
         saveas(fig3,fullfile(cely_tok_path,sprintf("sucetAlfBet_cw=%d.png",compute_window)));
     end
+        %}
         %save cely tok
         figall = figure;
         t = linspace(0,length(cely_tok),length(cely_tok));
         t2 = linspace(compute_window,length(cely_tok),length(priemer));
-        plot(t,cely_tok,'b',t2,priemer,'r');
+        plot(t,cely_tok,'b');
+        hold on
+        plot(t2,priemer,'r','LineWidth', 2);
         title(sprintf('Utok - %s', attack_name));
         xlabel("Čas");
         ylabel("Počet paketov");

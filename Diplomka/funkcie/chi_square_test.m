@@ -4,12 +4,14 @@ function [chi2_stat, p_value, critical_value, df] = chi_square_test(obs1,obs2,ch
     obs1_counts = histcounts(obs1,pocet_tried_hist);
     obs2_counts = histcounts(obs2, length(obs1_counts));
 
+    %kontingencna tabulka
     obs = [obs1_counts; obs2_counts];
 
     row_totals = sum(obs, 2);
     column_totals = sum(obs, 1);
     grand_total = sum(row_totals);
 
+    % ocakavane frekvencie
     expected = (row_totals * column_totals) / grand_total;
 
     valid_categories = all(expected > 0) & all(obs > 0);

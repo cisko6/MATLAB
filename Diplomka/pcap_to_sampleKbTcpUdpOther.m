@@ -4,7 +4,7 @@ clear;clc
 % vstup csv - TIS
 
 where_to_store = "C:\Users\patri\Desktop\TCP_UDP";
-attack_file = "C:\Users\patri\Desktop\diplomka\Zaznamy\záznamy\Pcapy s protokolmi\TIS - po kuskoch\0605b_10582.csv";
+attack_file = "C:\Users\patri\Desktop\diplomka\Zaznamy\záznamy\Pcapy s protokolmi\TIS zaznamy - po kuskoch\0701_1403.csv";
 
 M = readtable(attack_file);
 
@@ -15,23 +15,7 @@ data_kb = M.Var8;
 protocols = M.Var13;
 
 
-%%%%%%%%%%%%%%%% velkost paketov navzorkovana na dany pocet kB - blbost
-%max_size_kb = 50000; kB
-%index_size = 1;
-%pom_size = 0;
-%for i=1:dlzka_pcapu
-%    pom_size = pom_size + data_kb(i);
-%    if pom_size < max_size_kb
-%        sampled_data_kb(index_size) = sampled_data_kb(index_size) + 1;
-%        continue
-%    end
-
-    % prvy co prekroci hranicu tak sa prirata este k staremu
-%    sampled_data_kb(index_size) = sampled_data_kb(index_size) + 1;
-%    index_size = index_size + 1;
-%    pom_size = 0;
-%end
-
+%{
 % vytvorenie nekumulovanych medzier
 data_casy = M.Var6;
 minuty = data_casy.Minute;
@@ -40,6 +24,7 @@ medzery = create_spaces_from_csvPcap(dlzka_pcapu, sekundy, minuty);
 
 % slotovanie pocty
 sampled_data = sample_pcap(data_casy, slot_window);
+%}
 
 % pocty + velkost = zaznamu, tcp, udp, other
 sampled_data_kb = zeros(1,dlzka_pcapu);

@@ -11,7 +11,7 @@ chi_alfa = 0.05;
 pocet_tried_hist = 20;
 simulacia = "MMRP"; % MMRP, MMBP
 use_fourier = "no"; % yes, default=no
-typ_statistiky = "chi";
+typ_statistiky = "dkl";
 keep_frequencies = 3;
 slot_window = 0.01;
 predict_window = 1000;
@@ -160,7 +160,7 @@ for j=1:8
 
             if typ_statistiky == "dkl"
                 % divergencia klzavo
-                [statistika_array] = pouzi_diverg(cely_tok, gen_sampled, compute_window, shift, use_fourier, keep_frequencies);
+                [statistika_array] = pouzi_diverg(cely_tok, gen_sampled, compute_window, shift, use_fourier, keep_frequencies,pocet_tried_hist);
             elseif typ_statistiky == "chi"
                 % chi klzavo
                 [statistika_array, p_value_array, critical_value_array] = pouzi_chi_square_test(cely_tok, gen_sampled, compute_window, shift, pocet_tried_hist, chi_alfa, use_fourier, keep_frequencies);

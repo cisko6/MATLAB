@@ -56,7 +56,7 @@ if typ_merania == "doba_rozpoznania"
     saveas(figure2,"Tunel_3D_doba_rozpoznania.png")
 elseif typ_merania == "falosne_hlasenia"
     saveas(figure1,"Tunel_2D_falosne_hlasenia.png")
-    saveas(figure2,"Tunel_3D_falosne_hlasenia.png")
+    saveas(figure2,"Tunel_3D_falosne_hlasenia.fig")
 end
 
 

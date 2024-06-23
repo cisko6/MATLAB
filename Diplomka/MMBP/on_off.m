@@ -53,7 +53,8 @@ for i=1:(pocet_generovanych/sample_size)-1
 end
 
 
-fig1 = plot(mmbp_data);
+fig1 = figure;
+plot(mmbp_data);
 title("MMBP pre " + pocet_generovanych + " bitov, α = "+alfa+", β = "+beta+", p = "+ p);
 xlabel('Počet bitov');
 ylabel('1/0');
